@@ -8,4 +8,4 @@ _*Para baixar vídeos do youtube, é RECOMENDADO a instalação do FFMPEG para q
 
 ## Como baixar?
 Acesse **configurações** do Filekit e clique em **Anexar plugins**, e anexe o **ytdl.exe** e **ffmpeg.exe** na pasta **plugins** que abriu.<br>
-Depois disso, só colar a url da plataforma desejada e cline no botão **baixar** e pronto!
+Depois disso, só colar a url da plataforma desejada e clique no botão **baixar** e pronto!
