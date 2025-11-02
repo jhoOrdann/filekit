@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Filekit</title>
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="./css/newIndexApp.css">
+    <link rel="stylesheet" href="./css/settings.css">
+</head>
+
+<body>
+    <div id="app">
+        <header class="topbar">
+            <img src="./media/filekit_lg.png" class="logo" alt="" srcset="">
+            <nav class="tabs">
+                <button data-tab="video" class="active"><i class="ri-video-download-fill"></i></button>
+                <button data-tab="audio"><i class="ri-music-2-fill"></i></button>
+                <button data-tab="otherDownloads"><i class="ri-plug-fill"></i></button>
+                <button data-tab="history"><i class="ri-history-line"></i></button>
+                <button data-tab="settings"><i class="ri-settings-5-fill"></i></button>
+                <button data-tab="help"><i class="ri-questionnaire-fill"></i></button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- ABA VÍDEO -->
+            <section id="tab-video" class="tab active">
+                <div class="plugin-warning hidden" id="plugin-warning">
+                    ⚠️ Plugins não encontrados!
+                    <button id="btn-open-plugins">Abrir pasta</button>
+                    <button id="btn-get-plugins">Baixar plugins</button>
+                </div>
+                <div class="form-block">
+                    <label>URL do vídeo</label>
+                    <input id="video-url" type="text" placeholder="https://..." />
+                </div>
+                <p class="hintV">Cole mais conteúdo rapidamente, use a tecla <i class="ri-microsoft-fill"></i><b> + V</b></p>
+                <div class="form-block">
+                    <label>Nome do arquivo (opcional)</label>
+                    <input id="video-filename" type="text" placeholder="Vídeo louquinho kkkkkk" />
+                </div>
+                <div class="form-inline">
+                    <div>
+                        <label>Plataforma</label>
+                        <select id="video-platform">
+                            <option value="auto">Detectar automaticamente</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="twitch">Twitch</option>
+                            <option value="kick">Kick</option>
+                            <option value="vimeo">Vimeo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Qualidade</label>
+                        <select id="video-quality">
+                            <option value="best">Melhor disponível</option>
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Codec</label>
+                        <select id="video-codec">
+                            <option value="">Automático</option>
+                            <option value="h264">H.264</option>
+                            <option value="vp9">VP9</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Tipo de arquivo</label>
+                        <select id="video-filetype">
+                            <option value="auto">Automático</option>
+                            <option value="mp4">.mp4</option>
+                            <option value="mkv">.mkv</option>
+                            <option value="webm">.webm</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-inline">
+                    <div class="flex-1">
+                        <label>Pasta de destino</label>
+                        <input id="video-output" type="text" placeholder="Clique no botão ecolher para salvar na pasta desejada" disabled />
+                    </div>
+                    <button id="video-choose" class="button-choise"><i class="ri-search-ai-line"></i> Escolher</button>
+                </div>
+                <p class="hint">Caso não escolher o destino o destino o arquivo não será baixado corretamente.</p>
+
+                <hr class="new1" style="margin-top: 25px;margin-bottom: 15px;">
+
+                <button id="video-download" class="btn-primary"><i class="ri-download-line"></i> Baixar vídeo</button>
+                <div id="video-status"></div>
+                <p class="hint">Alguns formatos precisam do plugin <b>ffmpeg.exe</b> na pasta de plugins.</p>
+            </section>
+
+            <!-- ABA ÁUDIO -->
+            <section id="tab-audio" class="tab">
+                <div class="form-block">
+                    <label>URL do áudio/música</label>
+                    <input id="audio-url" type="text" placeholder="https://..." />
+                </div>
+                <p class="hintV">Cole mais conteúdo rapidamente, use a tecla <i class="ri-microsoft-fill"></i><b> + V</b></p>
+                <div class="form-block">
+                    <label>Nome do arquivo (opcional)</label>
+                    <input id="audio-filename" type="text" placeholder="Musica estourada dmssss kkkk" />
+                </div>
+                <div class="form-inline">
+                    <div>
+                        <label>Plataforma</label>
+                        <select id="audio-platform">
+                            <option value="auto">Detectar automaticamente</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="instagram">Instagram</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Qualidade</label>
+                        <select id="audio-quality">
+                            <option value="best">Melhor disponível</option>
+                            <option value="320k">320 kbps</option>
+                            <option value="192k">192 kbps</option>
+                            <option value="128k">128 kbps</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Tipo de arquivo</label>
+                        <select id="audio-filetype">
+                            <option value="mp3">.mp3</option>
+                            <option value="m4a">.m4a</option>
+                            <option value="opus">.opus</option>
+                            <option value="flac">.flac</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-inline">
+                    <div class="flex-1">
+                        <label>Pasta de destino</label>
+                        <input id="audio-output" type="text" placeholder="Clique para salvar na pasta desejada" readonly />
+                    </div>
+                    <button id="audio-choose" class="button-choise"><i class="ri-search-ai-line"></i> Escolher</button>
+                </div>
+                <p class="hint">Caso não escolher o destino o destino o arquivo não será baixado corretamente.</p>
+
+                <hr class="new1" style="margin-top: 25px;margin-bottom: 15px;">
+
+                <button id="audio-download" class="btn-primary"><i class="ri-download-line"></i> Baixar áudio</button>
+                <div id="audio-status"></div>
+            </section>
+
+            <!-- ABA CONFIGURAÇÕES -->
+            <section id="tab-settings" class="tab">
+                <h1 style="margin-bottom: 22px;">Configurações</h1>
+                <!-- PLUGINS -->
+                <section class="settings-section">
+                    <h2><i class="ri-information-fill"></i> Plugins</h2>
+                    <ul class="settings-list">
+                        <a style="cursor: pointer;" id="open-plugins">
+                            <li class="settings-item-a" style="cursor: default;">
+                                <span>
+                                    <i class="ri-puzzle-2-fill"></i> Adicionar plugins
+                                </span>
+                                <p style="margin-right: 10px;color: gray;">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </p>
+                            </li>
+                        </a>
+                        <p class="pT">
+                            Plugins disponíveis para uso: ytdlp, ffmpeg e tiktok_cookies.txt (para downloads do tiktok).
+                        </p>
+                    </ul>
+                </section>
+                <!-- Geral -->
+                <section class="settings-section">
+                    <h2><i class="ri-settings-4-fill"></i> Geral</h2>
+                    <ul class="settings-list">
+                        <li class="settings-item-a">
+                            <span>
+                                <i class="ri-computer-fill"></i> Iniciar com o Windows™
+                            </span>
+                            <label class="switch">
+                                <input type="checkbox" id="cfg-startup">
+                                <span class="slider round"></span>
+                            </label>
+                        </li>
+                        <p class="pT">
+                            Iniciar o Filekit toda vez que você ligar o computador
+                        </p>
+                        <li class="settings-item-a">
+                            <span>
+                                <i class="ri-picture-in-picture-2-fill"></i> Manter na bandeja ao fechar
+                            </span>
+                            <label class="switch">
+                                <input type="checkbox" id="cfg-tray">
+                                <span class="slider round"></span>
+                            </label>
+                        </li>
+                        <p class="pT">
+                            Quando você fechar o aplicativo, ele fica em segundo plano na bandeja de aplicativos do Windows™.<br>
+                            Dica: Clique 2x no ícone para abrir mais rápido.
+                        </p>
+                    </ul>
+                </section>
+
+                <!-- Sobre -->
+                <section class="settings-section">
+                    <h2><i class="ri-information-fill"></i> Sobre</h2>
+                    <ul class="settings-list">
+                        <li class="settings-item-a" style="cursor: default;">
+                            <span>
+                                <i class="ri-arrow-up-circle-fill"></i> Versão
+                            </span>
+                            <p style="margin-right: 10px;color: gray;">
+                                <span id="cfg-version">-</span>
+                            </p>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Redes Sociais -->
+                <section class="settings-section">
+                    <h2>Me siga para mais aplicativos como este</h2>
+                    <ul class="settings-list">
+                        <a>
+                            <li class="settings-item-a" style="cursor: default;">
+                                <span>
+                                    <i class="ri-instagram-line"></i> Me siga
+                                </span>
+                                <p style="margin-right: 10px;color: gray;">
+                                    jhordan_lossehelin_
+                                </p>
+                            </li>
+                        </a>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Histórico -->
+            <section id="tab-history" class="tab">
+                <section class="settings-section">
+                    <h2><i class="ri-time-fill"></i> Histórico de downloads</h2>
+                    <p style="color: #ffffff53;margin-top: -10px;">Veja os últimos downloads concluídos neste dispositivo.</p>
+                    <div id="history-list" class="history-list">
+                        <!-- será preenchido via JS -->
+                        <p id="history-empty" style="color: #ffffff9b;"><i class="ri-loader-4-fill spin"></i> Aguardando downloads..</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Outros downloads -->
+            <section id="tab-otherDownloads" class="tab">
+                <h1>Plugins Built-In</h1>
+                <p style="margin-bottom: 22px;color: #ffffff62;">
+                    Sites built-in no Filekit para você não precisar sair do app!
+                </p>
+
+                <div class="form-inline">
+                    <button id="btn-kick-voddownload" class="button-dwmusic"><i class="ri-kick-fill"></i> Baixar vods da kick</button>
+                    <button id="btn-audio-spotify" class="button-dwmusic"><i class="ri-spotify-fill"></i> Baixar músicas do Spotify</button>
+                    <button id="btn-audio-deezer" class="button-dwmusic"><i class="ri-heart-3-fill"></i> Baixar músicas do Deezer</button>
+                </div>
+                <p class="hint">
+                    Os <b>Plugins Built-In</b> são sites de terceiros imbutidos no Filekit para que você não precise sair do aplicativo. 
+                    Todos os sites listados não são de propriedade do Filekit. Caso ocorra instabilidades, o Filekit não tem o controle 
+                    dos <b>Plugins Built-In</b>. Alguns sites podem apresentar anúncios (no qual não temos controle).
+                    <p class="hint">
+                        Os sites listados são de seus respectivos criadores, de:<br>
+                        kick-video.download<br>
+                        spotidownloader.com<br>
+                        deezmate.com/en<br>
+                    </p>
+                </p>
+            </section>
+
+            <!-- documentação -->
+            <section id="tab-help" class="tab">
+                <h1 style="margin-bottom: 22px;">Central de Ajuda</h1>
+
+                <!-- DOAÇÃO -->
+                <div class="form-inline" style="margin-bottom: 20px;">
+                    <button id="btn-donate" class="button-dwmusic"><i class="ri-service-fill"></i> Doar</button>
+                    <p class="hint">Doe qualquer valor. Abrirá um popup externo.</p>
+                </div>
+
+                <h2>Está com problemas em utilizar o Filekit?</h2>
+                <section class="settings-section" style="margin-top: 20px;">
+                    <ul class="settings-list">
+                        <a style="cursor: pointer;" href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noopener noreferrer">
+                            <li class="settings-item-a" style="cursor: default;">
+                                <span>
+                                    <i class="ri-download-line"></i> Baixar ytdl
+                                </span>
+                                <p style="margin-right: 10px;color: gray;">
+                                    .exe
+                                </p>
+                            </li>
+                        </a>
+                        <p class="pT">
+                            Após baixar jogue na pasta <b>Plugins</b>.
+                        </p>
+                        <a style="cursor: pointer;" href="https://www.ffmpeg.org/" target="_blank" rel="noopener noreferrer">
+                            <li class="settings-item-a" style="cursor: default;">
+                                <span>
+                                    <i class="ri-download-line"></i> Baixar ffmpeg
+                                </span>
+                                <p style="margin-right: 10px;color: gray;">
+                                    .exe
+                                </p>
+                            </li>
+                        </a>
+                        <p class="pT">
+                            Após baixar jogue na pasta <b>Plugins</b>.
+                        </p>
+                    </ul>
+                </section>
+                <h2 style="margin-top: 22px;">Precisa de mais ajuda?</h2>
+                <p>Envie um email para <b>support@foooly.com</b>.</p>
+            </section>
+        </main>
+    </div>
+
+    <div id="update-modal" class="update-modal hidden">
+        <div class="update-box">
+            <h3 id="update-title"><i class="ri-loader-2-fill spin"></i> Verificando atualizações…</h3>
+            <div id="update-progress" class="progress-bar hidden">
+                <div id="update-progress-fill"></div>
+            </div>
+            <button id="update-install" class="btn-install hidden">Instalar agora</button>
+        </div>
+    </div>
+
+    <div id="error-modal" class="error-modal hidden">
+        <div class="error-box">
+            <i class="ri-alert-fill"></i>
+            <h3 id="error-title">Erro</h3>
+            <p id="error-message">Mensagem de erro...</p>
+            <div class="error-actions">
+            <button id="btn-open-plugins-err" class="hidden">Abrir pasta de plugins</button>
+            <button id="btn-close-error">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/renderer.js"></script>
+</body>
+
+</html>

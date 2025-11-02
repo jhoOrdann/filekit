@@ -1,0 +1,64 @@
+{
+  "name": "filekit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run backup && electron .",
+    "backup": "powershell Compress-Archive -Path * -DestinationPath backups/backup-$(Get-Date -Format yyyy-MM-dd_HH-mm-ss).zip -Force",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.foooly.filekit",
+    "productName": "Filekit",
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "files": [
+      "index.js",
+      "preload.js",
+      "backend/**/*",
+      "src/**/*",
+      "plugins/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "plugins/",
+        "to": "plugins/"
+      }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "jhoOrdann",
+        "repo": "filekit"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron-store": "^11.0.2",
+    "electron-updater": "^6.6.2",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "os": "^0.1.2",
+    "path": "^0.12.7",
+    "ytdl-core": "^4.11.5"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12"
+  }
+}
