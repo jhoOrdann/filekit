@@ -1,0 +1,38 @@
+name: Build and Release Filekit
+
+on:
+  push:
+    tags:
+      - 'v*'   # dispara quando você fizer: git push origin v1.0.0
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build instalador
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Publicar release no GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+            files: |
+              dist/*.exe
+              dist/latest.yml
+            generate_release_notes: true
+            prerelease: ${{ contains(github.ref_name, 'beta') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
