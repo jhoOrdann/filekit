@@ -16,12 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   addDownloadLog: (entry) => ipcRenderer.invoke('add-download-log', entry),
   getDownloadLogs: () => ipcRenderer.invoke('get-download-logs'),
   openFileLocation: (filePath) => ipcRenderer.invoke('open-file-location', filePath),
-  onUpdateStatus: (cb) => {
-    const { ipcRenderer } = require('electron');
-    ipcRenderer.on('update-status', (_e, data) => cb(data));
-  },
-  installUpdateNow: () => {
-    const { ipcRenderer } = require('electron');
-    return ipcRenderer.invoke('install-update-now');
-  }
+  onUpdateStatus: (cb) => ipcRenderer.on('update-status', cb),
+  installUpdateNow: () => ipcRenderer.invoke('install-update-now'),
 });

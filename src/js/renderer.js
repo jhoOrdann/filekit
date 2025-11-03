@@ -209,45 +209,72 @@ document.getElementById('open-plugins').addEventListener('click', async () => {
   }
 });
 
-const updateModal = document.getElementById('update-modal');
-const updateTitle = document.getElementById('update-title');
-const updateText = document.getElementById('update-text');
-const updateProgress = document.getElementById('update-progress');
-const updateProgressFill = document.getElementById('update-progress-fill');
-const updateInstall = document.getElementById('update-install');
+const updateModal   = document.getElementById('update-modal');
+const updateTitle   = document.getElementById('update-title');
+const updateText    = document.getElementById('update-text');
+const updateBar     = document.getElementById('update-progress');
+const updateFill    = document.getElementById('update-progress-fill');
+const btnUpdateInst = document.getElementById('update-install');
+const btnUpdateClose= document.getElementById('update-close');
 
-window.electronAPI.onUpdateStatus((data) => {
+if (btnUpdateClose) {
+  btnUpdateClose.addEventListener('click', () => {
+    updateModal.classList.add('hidden');
+  });
+}
+
+if (btnUpdateInst) {
+  btnUpdateInst.addEventListener('click', () => {
+    window.electronAPI.installUpdateNow(); // aquele IPC que chama quitAndInstall
+  });
+}
+
+// ouvir eventos vindo do main
+window.electronAPI?.onUpdateStatus?.((_e, payload) => {
+  const { state, progress, error } = payload || {};
+
+  // sempre mostrar o modal quando receber estado
   updateModal.classList.remove('hidden');
+  btnUpdateClose.classList.add('hidden');
+  btnUpdateInst.classList.add('hidden');
+  updateBar.classList.add('hidden');
 
-  if (data.state === 'available') {
-    updateTitle.textContent = 'Atualização encontrada';
-    updateText.textContent = 'Baixando…';
-    updateProgress.classList.remove('hidden');
+  if (state === 'checking') {
+    updateTitle.textContent = 'Verificando atualizações…';
+    updateText.textContent  = 'Aguarde só um instante.';
   }
-
-  if (data.state === 'downloading') {
+  else if (state === 'available') {
+    updateTitle.textContent = 'Nova versão disponível!';
+    updateText.textContent  = 'Baixando atualização…';
+    updateBar.classList.remove('hidden');
+  }
+  else if (state === 'downloading') {
     updateTitle.textContent = 'Baixando atualização…';
-    updateText.textContent = `Recebidos ${(data.progress.transferred / 1024 / 1024).toFixed(1)} MB de ${(data.progress.total / 1024 / 1024).toFixed(1)} MB`;
-    const perc = data.progress.percent || 0;
-    updateProgressFill.style.width = perc.toFixed(0) + '%';
+    updateBar.classList.remove('hidden');
+    if (progress && typeof progress.percent === 'number') {
+      updateFill.style.width = progress.percent.toFixed(0) + '%';
+      updateText.textContent = `Progresso: ${progress.percent.toFixed(0)}%`;
+    }
   }
-
-  if (data.state === 'downloaded') {
-    updateTitle.textContent = 'Atualização pronta';
-    updateText.textContent = 'Clique para instalar e reiniciar.';
-    updateProgress.classList.add('hidden');
-    updateInstall.classList.remove('hidden');
+  else if (state === 'downloaded') {
+    updateTitle.textContent = 'Atualização pronta para instalar';
+    updateText.textContent  = 'Clique em "Instalar agora" para reiniciar o Filekit.';
+    btnUpdateInst.classList.remove('hidden');
+    btnUpdateClose.classList.remove('hidden');
   }
-
-  if (data.state === 'error') {
+  else if (state === 'no-update') {
+    updateTitle.textContent = 'Nenhuma atualização encontrada';
+    updateText.textContent  = 'Você já está usando a versão mais recente.';
+    btnUpdateClose.classList.remove('hidden');
+  }
+  else if (state === 'error') {
     updateTitle.textContent = 'Erro ao atualizar';
-    updateText.textContent = data.error || 'Tente novamente mais tarde.';
-    updateProgress.classList.add('hidden');
+    updateText.textContent  = error || 'Não foi possível verificar ou baixar a atualização.';
+    // esconde barra, mostra só o botão de fechar
+    updateBar.classList.add('hidden');
+    btnUpdateInst.classList.add('hidden');
+    btnUpdateClose.classList.remove('hidden');
   }
-});
-
-updateInstall.addEventListener('click', async () => {
-  await window.electronAPI.installUpdateNow();
 });
 
 // Serviços externos (PLUGLINS BUILT-IN)

@@ -110,13 +110,12 @@ app.whenReady().then(() => {
   });
 
   autoUpdater.on('error', (err) => {
-    if (mainWindow) {
-      mainWindow.webContents.send('update-status', {
-        state: 'error',
-        error: err.message
-      });
-    }
+    mainWindow?.webContents.send('update-status', {
+      state: 'error',
+      error: err.message
+    });
   });
+
 });
 
 app.on('before-quit', () => {
