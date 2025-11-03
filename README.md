@@ -38,6 +38,7 @@ Disponíveis: (Podem ser adicionados mais no futuro)
 - Spotify *(via SpotiDownloader)*  
 - Deezer *(via Deezmate)*
 - Kick *(Via kick-video.download)*
+- Tiktok *(Via ssstik.io/pt)*
 
 ## 🚀 Como usar
 

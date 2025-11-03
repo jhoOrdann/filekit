@@ -1,4 +1,3 @@
-// backend/downloadManager.js
 const { spawn } = require('child_process');
 const path = require('path');
 const os = require('os');
@@ -23,7 +22,8 @@ function detectPlatformFromUrl(url = '') {
   if (u.includes('instagram.com')) return 'instagram';
   if (u.includes('twitch.tv')) return 'twitch';
   if (u.includes('kick.com')) return 'kick';
-  if (u.includes('vimeo.com')) return 'vimeo';
+  if (u.includes('facebook.com')) return 'facebook';
+  if (u.includes('x.com') || u.includes('twitter.com')) return 'twitter';
 
   return 'desconhecido';
 }
@@ -54,19 +54,15 @@ function getFfmpegPath() {
   return null;
 }
 
-// 👇 função pra montar o -f do yt-dlp pra VÍDEO
 function buildVideoFormat({ quality, fileType, codec, hasFfmpeg }) {
   const q = quality || 'best';
 
-  // transformar 1080p -> height<=1080
   let heightFilter = '';
   if (q === '1080p') heightFilter = '[height<=1080]';
   else if (q === '720p') heightFilter = '[height<=720]';
   else if (q === '480p') heightFilter = '[height<=480]';
 
-  // 1) usuário pediu MP4 => preferir mp4 + m4a
   if (fileType === 'mp4') {
-    // se o cara pediu h264 vamos reforçar avc1
     const videoPart =
       codec === 'h264' || !codec
         ? `bestvideo[ext=mp4][vcodec^=avc1]${heightFilter}`
@@ -74,21 +70,15 @@ function buildVideoFormat({ quality, fileType, codec, hasFfmpeg }) {
 
     const audioPart = `bestaudio[ext=m4a]/bestaudio[acodec^=mp4a]/bestaudio`;
 
-    // ordem de fallback:
-    // 1) video mp4 + audio m4a
-    // 2) best mp4 único
-    // 3) best qualquer coisa
     return `${videoPart}+${audioPart}/best[ext=mp4]${heightFilter}/best`;
   }
 
-  // 2) usuário pediu webm ou codec vp9 => usar webm/vp9/opus
   if (fileType === 'webm' || codec === 'vp9') {
     const videoPart = `bestvideo[ext=webm]${heightFilter}`;
     const audioPart = `bestaudio[ext=webm]/bestaudio[acodec=opus]/bestaudio`;
     return `${videoPart}+${audioPart}/best[ext=webm]${heightFilter}/best`;
   }
 
-  // 3) padrão
   if (hasFfmpeg) {
     return heightFilter
       ? `bestvideo${heightFilter}+bestaudio/best`
@@ -129,17 +119,14 @@ async function handleDownloadRequest({
   if (type === 'video') {
     format = buildVideoFormat({ quality, fileType, codec, hasFfmpeg });
   } else {
-    // áudio
     format = 'bestaudio/best';
   }
 
-  // sanitizar nome
   let safeName = '';
   if (fileName && fileName.trim()) {
     safeName = fileName.trim().replace(/[\\\/:*?"<>|]/g, '_');
   }
 
-  // montar template de saída
   let outputTemplate;
   if (!safeName) {
     outputTemplate = path.join(outDir, '%(title)s.%(ext)s');

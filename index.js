@@ -39,7 +39,7 @@ function createWindow() {
 }
 
 function createTray() {
-  const iconPath = path.join(__dirname, 'assets', 'filekit.png');
+  const iconPath = path.join(__dirname, 'assets/filekit.png');
   const icon = fs.existsSync(iconPath)
     ? nativeImage.createFromPath(iconPath)
     : nativeImage.createEmpty();
@@ -49,7 +49,7 @@ function createTray() {
     { label: 'Mostrar', click: () => mainWindow.show() },
     { label: 'Sair', click: () => { shouldQuit = true; app.quit(); } }
   ]);
-  tray.setToolTip('Foooly Filekit');
+  tray.setToolTip('Filekit');
   tray.setContextMenu(contextMenu);
 
   tray.on('double-click', () => {

@@ -181,10 +181,6 @@ audioDownload.addEventListener('click', async () => {
   }
 });
 
-const progressBar = document.getElementById('global-progress');
-const progressFill = document.getElementById('global-progress-fill');
-let activeDownloads = new Map(); // url -> percent
-
 window.electronAPI.onDownloadProgress((data) => {
   const { url, percent, engine } = data;
   // vídeo
@@ -259,6 +255,7 @@ const btnSpotify = document.getElementById('btn-audio-spotify');
 const btnDeezer = document.getElementById('btn-audio-deezer');
 const btnKickVodDownload = document.getElementById('btn-kick-voddownload');
 const btnDonate = document.getElementById('btn-donate');
+const btnTiktokDownloader = document.getElementById('btn-ssstik');
 
 if (btnSpotify) {
   btnSpotify.addEventListener('click', () => {
@@ -275,6 +272,12 @@ if (btnKickVodDownload) {
     window.electronAPI.openWebPopup('https://kick-video.download');
   });
 }
+if (btnTiktokDownloader) {
+  btnTiktokDownloader.addEventListener('click', () => {
+    window.electronAPI.openWebPopup('https://ssstik.io/pt');
+  });
+}
+
 if (btnDonate) {
   btnDonate.addEventListener('click', () => {
     window.electronAPI.openWebPopup('https://livepix.gg/jhordan');
@@ -337,11 +340,13 @@ async function loadHistory() {
     else if (platform.includes('instagram')) icon.style.background = 'linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7)';
     else if (platform.includes('twitch')) icon.style.background = '#9146FF';
     else if (platform.includes('kick')) icon.style.background = '#53fc18';
+    else if (platform.includes('facebook')) icon.style.background = '#043affff';
+    else if (platform.includes('twitter')) icon.style.background = '#000000';
     else icon.style.background = '#444';
 
     icon.innerHTML = item.type === 'audio'
-      ? '<i class="ri-music-2-fill"></i>'
-      : '<i class="ri-video-download-fill"></i>';
+      ? '<i class="ri-file-music-fill"></i>'
+      : '<i class="ri-file-video-fill"></i>';
 
     const meta = document.createElement('div');
     meta.className = 'history-meta';
