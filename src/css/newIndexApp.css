@@ -624,6 +624,31 @@ button {
   background: rgba(255, 255, 255, 0.12);
 }
 
+.tab_title {
+  margin-bottom: 23px;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: none;
+  color: #f55;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: 0.15s;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 0, 0, 0.1);
+}
+
 .spin {
   display: inline-block;
   animation: spin 1s linear infinite;

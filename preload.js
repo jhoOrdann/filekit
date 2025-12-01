@@ -16,6 +16,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   addDownloadLog: (entry) => ipcRenderer.invoke('add-download-log', entry),
   getDownloadLogs: () => ipcRenderer.invoke('get-download-logs'),
   openFileLocation: (filePath) => ipcRenderer.invoke('open-file-location', filePath),
+  pickFile: () => ipcRenderer.invoke('pick-file'),
+  convertFile: (data) => ipcRenderer.invoke('convert-file', data),
+  onConvertProgress: (cb) => ipcRenderer.on('convert-progress', cb),
+  onConvertLog: (cb) => ipcRenderer.on('convert-log', cb),
+  cancelOperation: (info) => ipcRenderer.invoke("cancel-operation", info),
   onUpdateStatus: (cb) => ipcRenderer.on('update-status', cb),
-  installUpdateNow: () => ipcRenderer.invoke('install-update-now'),
+  installUpdateNow: () => ipcRenderer.invoke('install-update-now')
 });

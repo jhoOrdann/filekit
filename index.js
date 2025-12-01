@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const Store = require('electron-store').default;
 const { handleDownloadRequest, detectPlatformFromUrl, setMainWindow, setPluginsDir } = require('./backend/downloadManager');
+const { convertFile, setPluginsDir: setConvPluginsDir } = require('./backend/converterManager');
 const { autoUpdater } = require('electron-updater');
 
 const store = new Store();
@@ -66,6 +67,7 @@ app.whenReady().then(() => {
     fs.mkdirSync(pluginsDir, { recursive: true });
   }
   setPluginsDir(pluginsDir);
+  setConvPluginsDir(pluginsDir);
 
   // iniciar com o sistema
   const startOnBoot = store.get('startOnBoot', false);
@@ -123,6 +125,7 @@ app.on('before-quit', () => {
 });
 
 // IPCs
+// Selecionar pasta do arquivo ao ser baixado
 ipcMain.handle('choose-folder', async (event, defaultPath) => {
   const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
     title: 'Escolher pasta de destino',
@@ -137,6 +140,7 @@ ipcMain.handle('detect-platform', (event, url) => {
   return detectPlatformFromUrl(url);
 });
 
+// ATUALIZAÇÃO: Começar download
 ipcMain.handle('start-download', async (event, payload) => {
   try {
     const result = await handleDownloadRequest(payload);
@@ -163,7 +167,7 @@ ipcMain.handle('get-settings', () => {
   };
 });
 
-//Atualizar app
+// ATUALIZAÇÃO: Atualizar app - novo
 ipcMain.handle('install-update-now', () => {
   autoUpdater.quitAndInstall();
 });
@@ -212,7 +216,7 @@ ipcMain.handle('open-web-popup', (event, url) => {
   return { ok: true };
 });
 
-// salvar item no histórico
+// Salvar Histórico (15 itens por vez)
 ipcMain.handle('add-download-log', (event, entry) => {
   const logPath = path.join(app.getPath('userData'), 'downloads.json');
   let logs = [];
@@ -243,6 +247,7 @@ ipcMain.handle('get-download-logs', () => {
   }
 });
 
+// Abrir local do arquivo
 ipcMain.handle('open-file-location', (event, filePath) => {
   if (!filePath) return { ok: false, error: 'Sem caminho.' };
   if (fs.existsSync(filePath)) {
@@ -250,4 +255,24 @@ ipcMain.handle('open-file-location', (event, filePath) => {
     return { ok: true };
   }
   return { ok: false, error: 'Arquivo não existe mais.' };
+});
+
+// NOVO: Escolher arquivo
+ipcMain.handle('pick-file', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: 'Escolher arquivo',
+    properties: ['openFile']
+  });
+  if (canceled || !filePaths || !filePaths.length) return null;
+  return filePaths[0];
+});
+
+// NOVO: Converter arquivos
+ipcMain.handle('convert-file', async (event, payload) => {
+  try {
+    const res = await convertFile(event, payload);
+    return { ok: true, ...res };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 });

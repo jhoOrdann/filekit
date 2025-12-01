@@ -16,6 +16,7 @@
             <nav class="tabs">
                 <button data-tab="video" class="active"><i class="ri-video-download-fill"></i></button>
                 <button data-tab="audio"><i class="ri-music-2-fill"></i></button>
+                <button data-tab="converter"><i class="ri-loop-right-fill"></i></button>
                 <button data-tab="otherDownloads"><i class="ri-plug-fill"></i></button>
                 <button data-tab="history"><i class="ri-history-line"></i></button>
                 <button data-tab="settings"><i class="ri-settings-5-fill"></i></button>
@@ -32,17 +33,17 @@
                     <button id="btn-get-plugins">Baixar plugins</button>
                 </div>
                 <div class="form-block">
-                    <label>URL do vídeo</label>
+                    <label><i class="ri-links-line"></i> URL do vídeo</label>
                     <input id="video-url" type="text" placeholder="https://..." />
                 </div>
                 <p class="hintV">Cole mais conteúdo rapidamente, use a tecla <i class="ri-microsoft-fill"></i><b> + V</b></p>
                 <div class="form-block">
-                    <label>Nome do arquivo (opcional)</label>
+                    <label><i class="ri-file-edit-fill"></i> Editar nome do arquivo</label>
                     <input id="video-filename" type="text" placeholder="Vídeo louquinho kkkkkk" />
                 </div>
                 <div class="form-inline">
                     <div>
-                        <label>Plataforma</label>
+                        <label><i class="ri-global-line"></i> Plataforma</label>
                         <select id="video-platform">
                             <option value="auto">Detectar automaticamente</option>
                             <option value="youtube">YouTube</option>
@@ -55,7 +56,7 @@
                         </select>
                     </div>
                     <div>
-                        <label>Qualidade</label>
+                        <label><i class="ri-hq-fill"></i> Qualidade</label>
                         <select id="video-quality">
                             <option value="best">Melhor disponível</option>
                             <option value="1080p">1080p</option>
@@ -64,7 +65,7 @@
                         </select>
                     </div>
                     <div>
-                        <label>Codec</label>
+                        <label><i class="ri-file-code-fill"></i> Codec</label>
                         <select id="video-codec">
                             <option value="">Automático</option>
                             <option value="h264">H.264</option>
@@ -72,7 +73,7 @@
                         </select>
                     </div>
                     <div>
-                        <label>Tipo de arquivo</label>
+                        <label><i class="ri-file-2-fill"></i> Tipo de arquivo</label>
                         <select id="video-filetype">
                             <option value="auto">Automático</option>
                             <option value="mp4">.mp4</option>
@@ -84,10 +85,10 @@
 
                 <div class="form-inline">
                     <div class="flex-1">
-                        <label>Pasta de destino</label>
+                        <label><i class="ri-folder-6-fill"></i> Pasta de destino</label>
                         <input id="video-output" type="text" placeholder="Clique no botão ecolher para salvar na pasta desejada" disabled />
                     </div>
-                    <button id="video-choose" class="button-choise"><i class="ri-search-ai-line"></i> Escolher</button>
+                    <button id="video-choose" class="button-choise"><i class="ri-folder-open-line"></i> Escolher</button>
                 </div>
                 <p class="hint">Caso não escolher o destino o destino o arquivo não será baixado corretamente.</p>
 
@@ -95,23 +96,23 @@
 
                 <button id="video-download" class="btn-primary"><i class="ri-download-line"></i> Baixar vídeo</button>
                 <div id="video-status"></div>
-                <p class="hint">Alguns formatos precisam do plugin <b>ffmpeg.exe</b> na pasta de plugins.</p>
+                <p class="hint">O plugin <b>ffmpeg.exe</b> deve estar na pasta de plugins para funcionar corretamente.</p>
             </section>
 
             <!-- ABA ÁUDIO -->
             <section id="tab-audio" class="tab">
                 <div class="form-block">
-                    <label>URL do áudio/música</label>
+                    <label><i class="ri-links-line"></i> URL do Áudio</label>
                     <input id="audio-url" type="text" placeholder="https://..." />
                 </div>
                 <p class="hintV">Cole mais conteúdo rapidamente, use a tecla <i class="ri-microsoft-fill"></i><b> + V</b></p>
                 <div class="form-block">
-                    <label>Nome do arquivo (opcional)</label>
-                    <input id="audio-filename" type="text" placeholder="Musica estourada dmssss kkkk" />
+                    <label><i class="ri-file-edit-fill"></i> Editar nome do arquivo</label>
+                    <input id="audio-filename" type="text" placeholder="áudio estourado dmssss kkkk" />
                 </div>
                 <div class="form-inline">
                     <div>
-                        <label>Plataforma</label>
+                        <label><i class="ri-global-line"></i> Plataforma</label>
                         <select id="audio-platform">
                             <option value="auto">Detectar automaticamente</option>
                             <option value="youtube">YouTube</option>
@@ -122,7 +123,7 @@
                         </select>
                     </div>
                     <div>
-                        <label>Qualidade</label>
+                        <label><i class="ri-hq-fill"></i> Qualidade</label>
                         <select id="audio-quality">
                             <option value="best">Melhor disponível</option>
                             <option value="320k">320 kbps</option>
@@ -131,7 +132,7 @@
                         </select>
                     </div>
                     <div>
-                        <label>Tipo de arquivo</label>
+                        <label><i class="ri-file-2-fill"></i> Tipo de arquivo</label>
                         <select id="audio-filetype">
                             <option value="mp3">.mp3</option>
                             <option value="m4a">.m4a</option>
@@ -143,10 +144,10 @@
 
                 <div class="form-inline">
                     <div class="flex-1">
-                        <label>Pasta de destino</label>
+                        <label><i class="ri-folder-6-fill"></i> Pasta de destino</label>
                         <input id="audio-output" type="text" placeholder="Clique para salvar na pasta desejada" readonly />
                     </div>
-                    <button id="audio-choose" class="button-choise"><i class="ri-search-ai-line"></i> Escolher</button>
+                    <button id="audio-choose" class="button-choise"><i class="ri-folder-open-line"></i> Escolher</button>
                 </div>
                 <p class="hint">Caso não escolher o destino o destino o arquivo não será baixado corretamente.</p>
 
@@ -155,7 +156,57 @@
                 <button id="audio-download" class="btn-primary"><i class="ri-download-line"></i> Baixar áudio</button>
                 <div id="audio-status"></div>
             </section>
+            <!-- ABA CONVERSOR -->
+            <section id="tab-converter" class="tab">
+                <div class="tab_title">
+                    <h1>Conversor de arquivos</h1>
+                    <p class="hint">Converta vídeos, áudios, imagens e documentos para outros formatos.</p>
+                    <hr class="new1" style="margin-top: 23px;">
+                </div>
+                <div class="form-block">
+                    <label><i class="ri-file-2-fill"></i> Tipo de arquivo</label>
+                    <select id="conv-category">
+                        <option value="video">Vídeo</option>
+                        <option value="audio">Áudio</option>
+                        <option value="image">Imagem</option>
+                        <option value="doc">Documento</option>
+                    </select>
+                </div>
 
+                <div class="form-block">
+                    <label><i class="ri-file-fill"></i> Arquivo de origem</label>
+                    <button id="conv-select-file" class="button-choise">
+                        <i class="ri-file-search-line"></i> Selecionar arquivo
+                    </button>
+                    <p id="conv-selected-file" class="hint">Nenhum arquivo selecionado.</p>
+                </div>
+
+                <div class="form-inline">
+                    <div class="flex-1">
+                        <label><i class="ri-file-settings-fill"></i> Converter para</label>
+                        <select id="conv-output-format"></select>
+                    </div>
+                </div>
+
+                <div class="form-inline">
+                    <div class="flex-1">
+                        <label><i class="ri-folder-6-fill"></i> Pasta de destino</label>
+                        <input id="conv-output-path" type="text"
+                            placeholder="Usar mesma pasta do arquivo de origem"
+                            disabled />
+                    </div>
+                    <button id="conv-choose-output" class="button-choise">
+                        <i class="ri-folder-open-line"></i> Escolher
+                    </button>
+                </div>
+                <hr class="new1" style="margin-top: 25px;margin-bottom: 15px;">
+                <button id="conv-start" class="btn-primary" disabled>
+                    <i class="ri-file-ai-fill"></i> Converter
+                </button>
+                <p class="hint">O plugin <b>ffmpeg.exe</b> é obrigatório para a maioria das conversões.</p>
+
+                <p id="conv-status" class="hint" style="margin-top: 12px;"></p>
+            </section>
             <!-- ABA CONFIGURAÇÕES -->
             <section id="tab-settings" class="tab">
                 <h1 style="margin-bottom: 22px;">Configurações</h1>
@@ -209,7 +260,6 @@
                         </p>
                     </ul>
                 </section>
-
                 <!-- Sobre -->
                 <section class="settings-section">
                     <h2><i class="ri-information-fill"></i> Sobre</h2>
@@ -224,7 +274,24 @@
                         </li>
                     </ul>
                 </section>
-
+                <!-- Debug -->
+                <section class="settings-section">
+                    <h2><i class="ri-apps-2-fill"></i> Aplicativo</h2>
+                    <ul class="settings-list">
+                        <li onclick="location.reload()" class="settings-item-a" style="cursor: default;">
+                            <span>
+                                <i class="ri-reset-right-fill"></i> Recarregar aplicativo
+                            </span>
+                            <p style="margin-right: 10px;color: gray;">
+                                <span></span>
+                            </p>
+                        </li>
+                        <p class="pT">
+                            Recarrega o aplicativo em casos de erros operacionais. Ao reiniciar, os downloads serão interrompidos sem 
+                            confirmação prévia de interrupção.
+                        </p>
+                    </ul>
+                </section>
                 <!-- Redes Sociais -->
                 <section class="settings-section">
                     <h2>Me siga para mais aplicativos como este</h2>
@@ -243,7 +310,7 @@
                 </section>
             </section>
 
-            <!-- Histórico -->
+            <!-- ABA HISTÓRICO -->
             <section id="tab-history" class="tab">
                 <section class="settings-section">
                     <h2><i class="ri-time-fill"></i> Histórico de downloads</h2>
@@ -254,7 +321,6 @@
                     </div>
                 </section>
             </section>
-
             <!-- Outros downloads -->
             <section id="tab-otherDownloads" class="tab">
                 <h1>Plugins Built-In</h1>
@@ -281,7 +347,6 @@
                     </p>
                 </p>
             </section>
-
             <!-- documentação -->
             <section id="tab-help" class="tab">
                 <h1 style="margin-bottom: 22px;">Central de Ajuda</h1>
@@ -329,14 +394,15 @@
         </main>
     </div>
 
+    <!-- ABA ATUALIZAÇÃO -->
     <div id="update-modal" class="update-modal hidden">
         <div class="update-box">
             <h3 id="update-title"><i class="ri-loader-2-fill spin"></i> Verificando atualizações…</h3>
             <div id="update-progress" class="progress-bar hidden">
                 <div id="update-progress-fill"></div>
             </div>
-            <button id="update-install" class="btn-install hidden">Instalar agora</button>
-            <button id="update-close" class="btn-install hidden">Fechar</button>
+            <button id="update-install" class="btn-install hidden"><i class="ri-arrow-down-line"></i> Instalar agora</button>
+            <button id="update-close" class="btn-install hidden"><i class="ri-close-large-line"></i> Fechar</button>
         </div>
     </div>
 

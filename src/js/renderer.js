@@ -1,5 +1,7 @@
 const tabs = document.querySelectorAll('.tabs button');
 const sections = document.querySelectorAll('.tab');
+let convSelectedFile = null;
+let convOutputDir = null;
 
 tabs.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -229,11 +231,8 @@ if (btnUpdateInst) {
   });
 }
 
-// ouvir eventos vindo do main
 window.electronAPI?.onUpdateStatus?.((_e, payload) => {
   const { state, progress, error } = payload || {};
-
-  // sempre mostrar o modal quando receber estado
   updateModal.classList.remove('hidden');
   btnUpdateClose.classList.add('hidden');
   btnUpdateInst.classList.add('hidden');
@@ -270,7 +269,6 @@ window.electronAPI?.onUpdateStatus?.((_e, payload) => {
   else if (state === 'error') {
     updateTitle.textContent = 'Erro ao atualizar';
     updateText.textContent  = error || 'Não foi possível verificar ou baixar a atualização.';
-    // esconde barra, mostra só o botão de fechar
     updateBar.classList.add('hidden');
     btnUpdateInst.classList.add('hidden');
     btnUpdateClose.classList.remove('hidden');
@@ -311,6 +309,7 @@ if (btnDonate) {
   });
 }
 
+// ERRO (MODAL)
 function showErrorModal(title, message, showPluginsButton = false) {
   const modal = document.getElementById('error-modal');
   const titleEl = document.getElementById('error-title');
@@ -335,6 +334,7 @@ document.getElementById('btn-open-plugins-err').addEventListener('click', () => 
   document.getElementById('error-modal').classList.add('hidden');
 });
 
+// HISTÓRICO
 async function loadHistory() {
   const container = document.getElementById('history-list');
   const empty = document.getElementById('history-empty');
@@ -349,8 +349,6 @@ async function loadHistory() {
   }
 
   if (empty) empty.classList.add('hidden');
-
-  // mostrar só os 15 últimos
   logs.slice(0, 15).forEach((item, idx) => {
     const card = document.createElement('div');
     card.className = 'history-card';
@@ -386,7 +384,6 @@ async function loadHistory() {
     const sub = document.createElement('div');
     sub.className = 'history-sub';
 
-    // formatar a data rapidinho
     const d = item.date ? new Date(item.date) : null;
     const dateStr = d ? d.toLocaleString() : '';
     sub.textContent = `${item.platform || 'auto'} • ${item.type || ''} • ${dateStr}`;
@@ -429,3 +426,90 @@ async function loadHistory() {
     container.appendChild(card);
   });
 }
+
+// CONVERSOR DE ARQUIVOS (NEW: NOVIDADE NO FILEKIT)
+const convFormats = {
+  video: ['mp4', 'mkv', 'avi', 'mov', 'webm'],
+  audio: ['mp3', 'wav', 'aac', 'ogg', 'flac'],
+  image: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'heic', 'avif', 'apng'],
+  doc: ['pdf', 'docx', 'pptx', 'xlsx', 'xls']
+};
+
+function fillConvFormats(type) {
+  const sel = document.getElementById('conv-output-format');
+  sel.innerHTML = '';
+  convFormats[type].forEach(ext => {
+    const opt = document.createElement('option');
+    opt.value = ext;
+    opt.textContent = '.' + ext;
+    sel.appendChild(opt);
+  });
+  updateConvertButtonLabel();
+}
+
+function updateConvertButtonLabel() {
+  const btn = document.getElementById('conv-start');
+  const sel = document.getElementById('conv-output-format');
+  if (!btn || !sel) return;
+  const ext = sel.value || '...';
+  btn.innerHTML = `<i class="ri-refresh-fill"></i> Converter para .${ext}`;
+}
+
+const convCat = document.getElementById('conv-category');
+fillConvFormats(convCat.value);
+
+convCat.addEventListener('change', () => {
+  fillConvFormats(convCat.value);
+});
+document.getElementById('conv-output-format').addEventListener('change', updateConvertButtonLabel);
+
+const convStatus = document.getElementById('conv-status');
+const convFileLabel = document.getElementById('conv-selected-file');
+const convOutInput = document.getElementById('conv-output-path');
+const convStartBtn = document.getElementById('conv-start');
+
+document.getElementById('conv-select-file').addEventListener('click', async () => {
+  const file = await window.electronAPI.pickFile();
+  if (!file) return;
+  convSelectedFile = file;
+  convFileLabel.textContent = file;
+  convStartBtn.disabled = false;
+});
+
+document.getElementById('conv-choose-output').addEventListener('click', async () => {
+  const folder = await window.electronAPI.chooseFolder();
+  if (!folder) return;
+  convOutputDir = folder;
+  convOutInput.value = folder;
+});
+
+convStartBtn.addEventListener('click', async () => {
+  if (!convSelectedFile) return;
+
+  const type = convCat.value;
+  const format = document.getElementById('conv-output-format').value;
+
+  convStatus.innerHTML = `<p class="statusNeutro"><i class="ri-loader-2-fill spin"></i> Iniciando conversão...</p>`;
+  convStartBtn.disabled = true;
+
+  const res = await window.electronAPI.convertFile({
+    type,
+    input: convSelectedFile,
+    outputDir: convOutputDir,
+    format
+  });
+
+  if (res.ok) {
+    convStatus.innerHTML = `<p class="statusConcluido"><i class="ri-checkbox-circle-fill"></i> Conversão concluída! (<span class="hint">${res.output})</p>`;
+  } else {
+    convStatus.innerHTML = `<p class="statusErro"><i class="ri-error-warning-fill"></i> Erro ao converter: ${res.error}</p>`;
+  }
+
+  convStartBtn.disabled = false;
+});
+
+window.electronAPI.onConvertProgress((_e, { input, percent }) => {
+  if (!convSelectedFile || input !== convSelectedFile) return;
+  const p = Math.round(percent);
+  convStatus.innerHTML = `<p class="statusBaixando"><i class="ri-loop-right-fill spin"></i> Convertendo arquivo... (${p}%)</p>`;
+});

@@ -114,7 +114,6 @@ async function handleDownloadRequest({
   const ffmpegPath = getFfmpegPath();
   const hasFfmpeg = !!ffmpegPath;
 
-  // escolher formato base
   let format = 'best';
   if (type === 'video') {
     format = buildVideoFormat({ quality, fileType, codec, hasFfmpeg });
@@ -152,7 +151,6 @@ async function handleDownloadRequest({
     args.push('--ffmpeg-location', ffmpegPath);
   }
 
-  // ⚠️ checagens antes de baixar
   if (
     type === 'video' &&
     !hasFfmpeg &&
@@ -170,7 +168,6 @@ async function handleDownloadRequest({
     );
   }
 
-  // áudio: extrair e converter
   if (type === 'audio') {
     args.push('--extract-audio');
 
@@ -190,13 +187,11 @@ async function handleDownloadRequest({
       args.push('--audio-quality', '0');
     }
   } else if (type === 'video') {
-    // se o user pediu mp4 e temos ffmpeg, força saída em mp4
     if (fileType && fileType !== 'auto' && hasFfmpeg) {
       args.push('--merge-output-format', fileType);
     }
   }
 
-  // TikTok headers
   if (finalPlatform === 'tiktok') {
     args.push('--referer', 'https://www.tiktok.com/');
     args.push(
