@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/jhoOrdann/filekit/releases">
-    <img src="https://img.shields.io/github/v/release/jhoOrdann/filekit?label=última%20versão&color=orange&style=for-the-badge" alt="Release" />
+    <img src="https://img.shields.io/github/v/release/jhoOrdann/filekit?label=%C3%BAltima%20vers%C3%A3o&color=orange&style=for-the-badge" alt="Release" />
   </a>
   <img src="https://img.shields.io/badge/Electron-v30-blue?style=for-the-badge" alt="Electron" />
   <img src="https://img.shields.io/badge/Node.js-v20-green?style=for-the-badge" alt="Node.js" />
