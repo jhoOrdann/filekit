@@ -40,12 +40,7 @@ function createWindow() {
 }
 
 function createTray() {
-  const iconPath = path.join(__dirname, 'assets/filekit.png');
-  const icon = fs.existsSync(iconPath)
-    ? nativeImage.createFromPath(iconPath)
-    : nativeImage.createEmpty();
-
-  tray = new Tray(icon);
+  tray = new Tray(path.join(__dirname, 'assets/filekit.png'));;
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Mostrar', click: () => mainWindow.show() },
     { label: 'Sair', click: () => { shouldQuit = true; app.quit(); } }

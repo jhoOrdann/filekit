@@ -427,13 +427,14 @@ async function loadHistory() {
   });
 }
 
-// CONVERSOR DE ARQUIVOS (NEW: NOVIDADE NO FILEKIT)
+// CONVERSOR DE ARQUIVOS (NEW: NOVOS FORMATOS DE ARQUIVOS!)
 const convFormats = {
-  video: ['mp4', 'mkv', 'avi', 'mov', 'webm'],
-  audio: ['mp3', 'wav', 'aac', 'ogg', 'flac'],
-  image: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'heic', 'avif', 'apng'],
-  doc: ['pdf', 'docx', 'pptx', 'xlsx', 'xls']
+  video: ['mp4', 'mkv', 'avi', 'mov', 'webm', 'flv', 'wmv', 'm4v', 'ts', '3gp', 'mpeg', 'vob'],
+  audio: ['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'wma', 'opus', 'alac', 'aiff', 'amr'],
+  image: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'heic', 'avif', 'apng', 'bmp', 'tiff', 'ico', 'tga'],
+  doc: ['pdf', 'docx', 'pptx', 'xlsx', 'xls', 'txt', 'rtf', 'csv', 'odt']
 };
+// !! "doc" PRECISA DO LIBREOFFICE INSTALADO!
 
 function fillConvFormats(type) {
   const sel = document.getElementById('conv-output-format');

@@ -100,10 +100,17 @@ function convertWithFfmpeg(event, type, input, output) {
   });
 }
 
-// PRECISA DO LIBREOFFICE
+// DOCUMENTOS (!! PRECISA DO LIBREOFFICE INSTALADO !!)
 function convertDocument(event, input, outDir, targetExt) {
   const outExt = targetExt || 'pdf';
-  const soffice = 'soffice';
+  
+  let soffice = 'soffice';
+  if (process.platform === 'win32') {
+    const defaultPath = 'C:\\Program Files\\LibreOffice\\program\\soffice.exe';
+    if (fs.existsSync(defaultPath)) {
+      soffice = defaultPath;
+    }
+  }
 
   const args = [
     '--headless',
@@ -125,7 +132,7 @@ function convertDocument(event, input, outDir, targetExt) {
     });
 
     child.on('error', (err) => {
-      reject(new Error('Erro ao chamar LibreOffice (soffice). Verifique se ele está instalado.'));
+      reject(new Error(`LibreOffice não encontrado. Verifique se ele está instalado no PC.\nErro original: ${err.message}`));
     });
 
     child.on('close', code => {
@@ -134,7 +141,7 @@ function convertDocument(event, input, outDir, targetExt) {
         const output = path.join(outDir, `${base}.${outExt}`);
         resolve({ output });
       } else {
-        reject(new Error(`Conversor de documentos saiu com código ${code}`));
+        reject(new Error(`Conversor de documentos falhou (Código ${code})`));
       }
     });
   });
