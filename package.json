@@ -1,6 +1,6 @@
 {
   "name": "filekit",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -26,13 +26,6 @@
       {
         "from": "plugins/",
         "to": "plugins/"
-      }
-    ],
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "jhoOrdann",
-        "repo": "filekit"
       }
     ],
     "win": {
