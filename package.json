@@ -28,6 +28,13 @@
         "to": "plugins/"
       }
     ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "jhoOrdann",
+        "repo": "filekit"
+      }
+    ],
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"
