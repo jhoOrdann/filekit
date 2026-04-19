@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Filekit Updater</title>
+    <link rel="stylesheet" href="./css/updater.css" />
+    <!-- PHOSPHOR ICONS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/thin/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/light/style.css" />
+</head>
+<body>
+    <img src="../assets/filekit.png" class="logo" alt="Filekit" onerror="this.style.display='none'">
+    
+    <div class="status" id="status"><i class="ri-loader-line spin"></i> Verificando atualizações...</div>
+    
+    <div class="progress-bar" id="pb">
+        <div class="progress-fill" id="fill"></div>
+    </div>
+    
+    <button class="btn-install" id="btn-install">Atualizar Agora</button>
+
+    <script>
+        window.electronAPI.onUpdaterStatus((data) => {
+            if (data.state === 'available') {
+                document.getElementById('status').innerText = 'Atualização encontrada! Baixando...';
+            } else if (data.state === 'downloading') {
+                document.getElementById('status').innerText = `Baixando... ${Math.round(data.progress.percent)}%`;
+                document.getElementById('fill').style.width = data.progress.percent + '%';
+            } else if (data.state === 'downloaded') {
+                document.getElementById('status').innerText = 'Pronto para instalar!';
+                document.getElementById('pb').style.display = 'none';
+                document.getElementById('btn-install').style.display = 'block';
+            } else if (data.state === 'error') {
+                document.getElementById('status').innerText = 'Erro ao buscar atualizações.';
+            }
+        });
+
+        document.getElementById('btn-install').addEventListener('click', () => {
+            window.electronAPI.installUpdateNow();
+        });
+    </script>
+</body>
+</html>

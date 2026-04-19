@@ -34,7 +34,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Verificar plugins
     const plugins = await window.electronAPI.checkPlugins();
     const warning = document.getElementById('plugin-warning');
-    if (!plugins.yt || !plugins.ff) {
+    if (!plugins.yt || !plugins.ff || !plugins.spot) {
+      warning.innerHTML = `⚠️ Plugins faltando! Recomendado ter yt-dlp, ffmpeg e spotdl. <button id="btn-open-plugins">Abrir pasta</button>`;
       warning.classList.remove('hidden');
     }
 
@@ -119,6 +120,8 @@ videoDownload.addEventListener('click', async () => {
 // ÁUDIO
 const audioUrl = document.getElementById('audio-url');
 const audioPlatform = document.getElementById('audio-platform');
+const spotifyEngineContainer = document.getElementById('spotify-engine-container');
+const audioSpotifyEngine = document.getElementById('audio-spotify-engine');
 const audioQuality = document.getElementById('audio-quality');
 const audioOutput = document.getElementById('audio-output');
 const audioChoose = document.getElementById('audio-choose');
@@ -126,11 +129,22 @@ const audioDownload = document.getElementById('audio-download');
 const audioStatus = document.getElementById('audio-status');
 const audioFileName = document.getElementById('audio-filename').value.trim();
 
+function toggleSpotifyEngine() {
+  if (audioPlatform.value === 'spotify') {
+    spotifyEngineContainer.classList.remove('hidden');
+  } else {
+    spotifyEngineContainer.classList.add('hidden');
+  }
+}
+
+audioPlatform.addEventListener('change', toggleSpotifyEngine);
+
 audioUrl.addEventListener('blur', async () => {
   if (audioUrl.value.trim().length > 0) {
     const p = await window.electronAPI.detectPlatform(audioUrl.value.trim());
     if (p && p !== 'desconhecido') {
       audioPlatform.value = p;
+      toggleSpotifyEngine();
     }
   }
 });
@@ -148,6 +162,7 @@ audioDownload.addEventListener('click', async () => {
     type: 'audio',
     url: audioUrl.value.trim(),
     platform: audioPlatform.value,
+    spotifyEngine: audioSpotifyEngine.value,
     quality: audioQuality.value,
     codec: '',
     fileType: document.getElementById('audio-filetype').value,
@@ -208,70 +223,6 @@ document.getElementById('open-plugins').addEventListener('click', async () => {
   const res = await window.electronAPI.openPluginsFolder();
   if (!res.ok) {
     alert('Não foi possível abrir a pasta de plugins: ' + (res.error || 'desconhecido'));
-  }
-});
-
-const updateModal   = document.getElementById('update-modal');
-const updateTitle   = document.getElementById('update-title');
-const updateText    = document.getElementById('update-text');
-const updateBar     = document.getElementById('update-progress');
-const updateFill    = document.getElementById('update-progress-fill');
-const btnUpdateInst = document.getElementById('update-install');
-const btnUpdateClose= document.getElementById('update-close');
-
-if (btnUpdateClose) {
-  btnUpdateClose.addEventListener('click', () => {
-    updateModal.classList.add('hidden');
-  });
-}
-
-if (btnUpdateInst) {
-  btnUpdateInst.addEventListener('click', () => {
-    window.electronAPI.installUpdateNow(); // aquele IPC que chama quitAndInstall
-  });
-}
-
-window.electronAPI?.onUpdateStatus?.((_e, payload) => {
-  const { state, progress, error } = payload || {};
-  updateModal.classList.remove('hidden');
-  btnUpdateClose.classList.add('hidden');
-  btnUpdateInst.classList.add('hidden');
-  updateBar.classList.add('hidden');
-
-  if (state === 'checking') {
-    updateTitle.textContent = 'Verificando atualizações…';
-    updateText.textContent  = 'Aguarde só um instante.';
-  }
-  else if (state === 'available') {
-    updateTitle.textContent = 'Nova versão disponível!';
-    updateText.textContent  = 'Baixando atualização…';
-    updateBar.classList.remove('hidden');
-  }
-  else if (state === 'downloading') {
-    updateTitle.textContent = 'Baixando atualização…';
-    updateBar.classList.remove('hidden');
-    if (progress && typeof progress.percent === 'number') {
-      updateFill.style.width = progress.percent.toFixed(0) + '%';
-      updateText.textContent = `Progresso: ${progress.percent.toFixed(0)}%`;
-    }
-  }
-  else if (state === 'downloaded') {
-    updateTitle.textContent = 'Atualização pronta para instalar';
-    updateText.textContent  = 'Clique em "Instalar agora" para reiniciar o Filekit.';
-    btnUpdateInst.classList.remove('hidden');
-    btnUpdateClose.classList.remove('hidden');
-  }
-  else if (state === 'no-update') {
-    updateTitle.textContent = 'Nenhuma atualização encontrada';
-    updateText.textContent  = 'Você já está usando a versão mais recente.';
-    btnUpdateClose.classList.remove('hidden');
-  }
-  else if (state === 'error') {
-    updateTitle.textContent = 'Erro ao atualizar';
-    updateText.textContent  = error || 'Não foi possível verificar ou baixar a atualização.';
-    updateBar.classList.add('hidden');
-    btnUpdateInst.classList.add('hidden');
-    btnUpdateClose.classList.remove('hidden');
   }
 });
 
@@ -341,7 +292,7 @@ async function loadHistory() {
   if (!container) return;
 
   const logs = await window.electronAPI.getDownloadLogs();
-  container.innerHTML = ''; 
+  container.innerHTML = '';
 
   if (!logs || logs.length === 0) {
     if (empty) empty.classList.remove('hidden');

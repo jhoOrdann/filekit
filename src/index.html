@@ -116,6 +116,7 @@
                         <select id="audio-platform">
                             <option value="auto">Detectar automaticamente</option>
                             <option value="youtube">YouTube</option>
+                            <option value="spotify">Spotify</option>
                             <option value="tiktok">TikTok</option>
                             <option value="instagram">Instagram</option>
                             <option value="facebook">Facebook</option>
@@ -156,6 +157,7 @@
                 <button id="audio-download" class="btn-primary"><i class="ri-download-line"></i> Baixar áudio</button>
                 <div id="audio-status"></div>
             </section>
+
             <!-- ABA CONVERSOR -->
             <section id="tab-converter" class="tab">
                 <div class="tab_title">
@@ -208,6 +210,7 @@
 
                 <p id="conv-status" class="hint" style="margin-top: 12px;"></p>
             </section>
+
             <!-- ABA CONFIGURAÇÕES -->
             <section id="tab-settings" class="tab">
                 <h1 style="margin-bottom: 22px;">Configurações</h1>
@@ -393,18 +396,6 @@
                 <p>Envie um email para <b>support@foooly.com</b>.</p>
             </section>
         </main>
-    </div>
-
-    <!-- ABA ATUALIZAÇÃO -->
-    <div id="update-modal" class="update-modal hidden">
-        <div class="update-box">
-            <h3 id="update-title"><i class="ri-loader-2-fill spin"></i> Verificando atualizações…</h3>
-            <div id="update-progress" class="progress-bar hidden">
-                <div id="update-progress-fill"></div>
-            </div>
-            <button id="update-install" class="btn-install hidden"><i class="ri-arrow-down-line"></i> Instalar agora</button>
-            <button id="update-close" class="btn-install hidden"><i class="ri-close-large-line"></i> Fechar</button>
-        </div>
     </div>
 
     <div id="error-modal" class="error-modal hidden">

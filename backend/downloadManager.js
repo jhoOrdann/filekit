@@ -18,6 +18,7 @@ function detectPlatformFromUrl(url = '') {
   const u = (url || '').toLowerCase();
 
   if (u.includes('youtube.com') || u.includes('youtu.be')) return 'youtube';
+  if (u.includes('spotify.com')) return 'spotify';
   if (u.includes('tiktok.com')) return 'tiktok';
   if (u.includes('instagram.com')) return 'instagram';
   if (u.includes('twitch.tv')) return 'twitch';
@@ -32,6 +33,14 @@ function getDefaultDir(type) {
   return type === 'audio'
     ? path.join(os.homedir(), 'Music')
     : path.join(os.homedir(), 'Videos');
+}
+
+function getSpotDlPath() {
+  if (pluginsDir) {
+    const pluginSpot = path.join(pluginsDir, 'spotdl.exe');
+    if (fs.existsSync(pluginSpot)) return pluginSpot;
+  }
+  return 'spotdl';
 }
 
 function getYtDlpPath() {
@@ -110,10 +119,51 @@ async function handleDownloadRequest({
     fs.mkdirSync(outDir, { recursive: true });
   }
 
-  const ytDlp = getYtDlpPath();
   const ffmpegPath = getFfmpegPath();
   const hasFfmpeg = !!ffmpegPath;
 
+  if (finalPlatform === 'spotify') {
+    const spotdl = getSpotDlPath();
+    let formatF = fileType && fileType !== 'auto' ? fileType : 'mp3';
+
+    let safeNameTemplate = '{title} - {artists}'; // Template padrão do spotdl
+    if (fileName && fileName.trim()) {
+      safeNameTemplate = fileName.trim().replace(/[\\\/:*?"<>|]/g, '_');
+    }
+
+    const outPath = path.join(outDir, `${safeNameTemplate}.{ext}`);
+
+    const args = ['download', url, '--output', outPath, '--format', formatF];
+    if (hasFfmpeg) args.push('--ffmpeg', ffmpegPath);
+
+    return new Promise((resolve, reject) => {
+      const child = spawn(spotdl, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+
+      const handleLine = (line) => {
+        if (!line.trim()) return;
+        if (mainWindow) {
+          mainWindow.webContents.send('download-log', { url, text: line });
+          // Emulando progresso porque o spotDL loga de um jeito diferente
+          if (line.toLowerCase().includes('downloaded')) {
+            mainWindow.webContents.send('download-progress', { url, percent: 100, engine: 'spotdl' });
+          } else {
+            mainWindow.webContents.send('download-progress', { url, percent: 50, engine: 'spotdl' });
+          }
+        }
+      };
+
+      child.stdout.on('data', (chunk) => chunk.toString().split(/\r?\n/).forEach(handleLine));
+      child.stderr.on('data', (chunk) => chunk.toString().split(/\r?\n/).forEach(handleLine));
+
+      child.on('error', (err) => reject(new Error('spotDL não encontrado. Adicione o spotdl.exe nos plugins.')));
+      child.on('close', (code) => {
+        if (code === 0) resolve({ ok: true, file: outDir, engine: 'spotdl' });
+        else reject(new Error('spotDL saiu com código ' + code));
+      });
+    });
+  }
+
+  const ytDlp = getYtDlpPath();
   let format = 'best';
   if (type === 'video') {
     format = buildVideoFormat({ quality, fileType, codec, hasFfmpeg });

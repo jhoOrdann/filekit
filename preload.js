@@ -21,6 +21,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onConvertProgress: (cb) => ipcRenderer.on('convert-progress', cb),
   onConvertLog: (cb) => ipcRenderer.on('convert-log', cb),
   cancelOperation: (info) => ipcRenderer.invoke("cancel-operation", info),
-  onUpdateStatus: (cb) => ipcRenderer.on('update-status', cb),
+  onUpdaterStatus: (cb) => ipcRenderer.on('updater-status', (_e, data) => cb(data)),
   installUpdateNow: () => ipcRenderer.invoke('install-update-now')
 });

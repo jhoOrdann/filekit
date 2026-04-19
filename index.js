@@ -8,9 +8,27 @@ const { autoUpdater } = require('electron-updater');
 
 const store = new Store();
 let mainWindow;
+let updaterWindow;
 let tray;
 let shouldQuit = false;
 let pluginsDir;
+
+function createUpdaterWindow() {
+  updaterWindow = new BrowserWindow({
+    width: 320,
+    height: 400,
+    frame: false, // Remove as bordas da janela
+    transparent: true,
+    backgroundColor: '#0f0f10',
+    icon: path.join(__dirname, 'assets/filekit.png'),
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    },
+    title: 'Filekit Updater'
+  });
+
+  updaterWindow.loadFile(path.join(__dirname, 'src', 'updater.html'));
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -75,49 +93,47 @@ app.whenReady().then(() => {
     openAtLogin: startOnBoot
   });
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+  createUpdaterWindow();
 
   autoUpdater.autoDownload = true;
-  autoUpdater.checkForUpdates();
+  
+  updaterWindow.once('ready-to-show', () => {
+      autoUpdater.checkForUpdates();
+  });
 
-  // Eventos
   autoUpdater.on('update-available', (info) => {
-    if (mainWindow) {
-      mainWindow.webContents.send('update-status', {
-        state: 'available',
-        info
-      });
-    }
+    if (updaterWindow) updaterWindow.webContents.send('updater-status', { state: 'available', info });
   });
 
   autoUpdater.on('download-progress', (progress) => {
-    if (mainWindow) {
-      mainWindow.webContents.send('update-status', {
-        state: 'downloading',
-        progress
-      });
-    }
+    if (updaterWindow) updaterWindow.webContents.send('updater-status', { state: 'downloading', progress });
   });
 
   autoUpdater.on('update-downloaded', (info) => {
-    if (mainWindow) {
-      mainWindow.webContents.send('update-status', {
-        state: 'downloaded',
-        info
-      });
-    }
-    // autoUpdater.quitAndInstall();
+    if (updaterWindow) updaterWindow.webContents.send('updater-status', { state: 'downloaded', info });
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    updaterWindow.close();
+    createWindow();
+    createTray();
   });
 
   autoUpdater.on('error', (err) => {
-    mainWindow?.webContents.send('update-status', {
-      state: 'error',
-      error: err.message
-    });
+    console.error("Update error: ", err);
+    updaterWindow.webContents.send('updater-status', { state: 'error', error: err.message });
+    setTimeout(() => {
+      if(!updaterWindow.isDestroyed()) updaterWindow.close();
+      if (!mainWindow) {
+        createWindow();
+        createTray();
+      }
+    }, 2000);
   });
 
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
 });
 
 app.on('before-quit', () => {
@@ -185,13 +201,12 @@ ipcMain.handle('set-settings', (event, settings) => {
 
 ipcMain.handle('check-plugins', async () => {
   const pluginsDir = path.join(app.getPath('userData'), 'plugins');
-  const ytPath = path.join(pluginsDir, 'yt-dlp.exe');
-  const ffPath = path.join(pluginsDir, 'ffmpeg.exe');
-  const exists = {
-    yt: fs.existsSync(ytPath),
-    ff: fs.existsSync(ffPath)
+  return {
+    yt: fs.existsSync(path.join(pluginsDir, 'yt-dlp.exe')),
+    ff: fs.existsSync(path.join(pluginsDir, 'ffmpeg.exe')),
+    spotdl: fs.existsSync(path.join(pluginsDir, 'spotdl.exe')),
+    spud: fs.existsSync(path.join(pluginsDir, 'spud.exe'))
   };
-  return exists;
 });
 
 ipcMain.handle('open-web-popup', (event, url) => {
