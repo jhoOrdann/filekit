@@ -77,9 +77,6 @@ function createTray() {
 }
 
 app.whenReady().then(() => {
-  createWindow();
-  createTray();
-
   pluginsDir = path.join(app.getPath('userData'), 'plugins');
   if (!fs.existsSync(pluginsDir)) {
     fs.mkdirSync(pluginsDir, { recursive: true });

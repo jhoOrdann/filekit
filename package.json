@@ -1,6 +1,6 @@
 {
   "name": "filekit",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Filekit é um programa para baixar áudios, vídeos de diferentes redes sociais. Também é possivel converter arquivos de imagem, vídeo, áudio e documentos.",
   "main": "index.js",
   "scripts": {
@@ -20,6 +20,7 @@
       "preload.js",
       "backend/**/*",
       "src/**/*",
+      "assets/**/*",
       "plugins/**/*"
     ],
     "extraResources": [
