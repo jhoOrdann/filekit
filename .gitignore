@@ -7,6 +7,10 @@ out/
 release/
 build/
 
+# Permitindo o ícone do app
+!build/*.ico
+!build/*.png
+
 # electron
 *.asar
 
