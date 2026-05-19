@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openExternal: (url) => shell.openExternal(url),
   checkPlugins: () => ipcRenderer.invoke('check-plugins'),
   openPluginsFolder: () => ipcRenderer.invoke('open-plugins-folder'),
+  openCookiesFolder: () => ipcRenderer.invoke('open-cookies-folder'),
   onDownloadProgress: (cb) => ipcRenderer.on('download-progress', (_e, data) => cb(data)),
   onDownloadLog: (cb) => ipcRenderer.on('download-log', (_e, data) => cb(data)),
   openExternal: (url) => shell.openExternal(url),

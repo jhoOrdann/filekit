@@ -216,13 +216,22 @@ window.electronAPI.onDownloadProgress((data) => {
 document.getElementById('cfg-startup').addEventListener('change', async (e) => {
   await window.electronAPI.setSettings({ startOnBoot: e.target.checked });
 });
+
 document.getElementById('cfg-tray').addEventListener('change', async (e) => {
   await window.electronAPI.setSettings({ keepInTray: e.target.checked });
 });
+
 document.getElementById('open-plugins').addEventListener('click', async () => {
   const res = await window.electronAPI.openPluginsFolder();
   if (!res.ok) {
     alert('Não foi possível abrir a pasta de plugins: ' + (res.error || 'desconhecido'));
+  }
+});
+
+document.getElementById('open-cookies').addEventListener('click', async () => {
+  const res = await window.electronAPI.openCookiesFolder();
+  if (!res.ok) {
+    alert('Não foi possível abrir a pasta de cookies: ' + (res.error || 'desconhecido'));
   }
 });
 

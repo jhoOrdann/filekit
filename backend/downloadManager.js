@@ -5,6 +5,7 @@ const fs = require('fs');
 
 let mainWindow = null;
 let pluginsDir = null;
+let cookiesDir = null;
 
 function setMainWindow(win) {
   mainWindow = win;
@@ -12,6 +13,10 @@ function setMainWindow(win) {
 
 function setPluginsDir(dir) {
   pluginsDir = dir;
+}
+
+function setCookiesDir(dir) { // NOVO
+  cookiesDir = dir;
 }
 
 function detectPlatformFromUrl(url = '') {
@@ -242,16 +247,27 @@ async function handleDownloadRequest({
     }
   }
 
+  if (cookiesDir) {
+    const generalCookiesPath = path.join(cookiesDir, 'cookies.txt');
+    if (fs.existsSync(generalCookiesPath)) {
+      args.push('--cookies', generalCookiesPath);
+    }
+  }
+
   if (finalPlatform === 'tiktok') {
     args.push('--referer', 'https://www.tiktok.com/');
     args.push(
       '--add-header',
       'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
     );
-    if (pluginsDir) {
-      const tiktokCookies = path.join(pluginsDir, 'tiktok_cookies.txt');
-      if (fs.existsSync(tiktokCookies)) {
-        args.push('--cookies', tiktokCookies);
+    if (!args.includes('--cookies')) {
+      const newTiktokCookies = cookiesDir ? path.join(cookiesDir, 'tiktok_cookies.txt') : null;
+      const oldTiktokCookies = pluginsDir ? path.join(pluginsDir, 'tiktok_cookies.txt') : null;
+
+      if (newTiktokCookies && fs.existsSync(newTiktokCookies)) {
+        args.push('--cookies', newTiktokCookies);
+      } else if (oldTiktokCookies && fs.existsSync(oldTiktokCookies)) {
+        args.push('--cookies', oldTiktokCookies);
       }
     }
   }
@@ -309,5 +325,6 @@ module.exports = {
   detectPlatformFromUrl,
   handleDownloadRequest,
   setMainWindow,
-  setPluginsDir
+  setPluginsDir,
+  setCookiesDir
 };

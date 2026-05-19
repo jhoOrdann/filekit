@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, Tray, Menu, nativeImage, shell } = 
 const path = require('path');
 const fs = require('fs');
 const Store = require('electron-store').default;
-const { handleDownloadRequest, detectPlatformFromUrl, setMainWindow, setPluginsDir } = require('./backend/downloadManager');
+const { handleDownloadRequest, detectPlatformFromUrl, setMainWindow, setPluginsDir, setCookiesDir } = require('./backend/downloadManager');
 const { convertFile, setPluginsDir: setConvPluginsDir } = require('./backend/converterManager');
 const { autoUpdater } = require('electron-updater');
 
@@ -12,6 +12,7 @@ let updaterWindow;
 let tray;
 let shouldQuit = false;
 let pluginsDir;
+let cookiesDir;
 
 function createUpdaterWindow() {
   updaterWindow = new BrowserWindow({
@@ -83,6 +84,12 @@ app.whenReady().then(() => {
   }
   setPluginsDir(pluginsDir);
   setConvPluginsDir(pluginsDir);
+
+  cookiesDir = path.join(app.getPath('userData'), 'cookies');
+  if (!fs.existsSync(cookiesDir)) {
+    fs.mkdirSync(cookiesDir, { recursive: true });
+  }
+  setCookiesDir(cookiesDir);
 
   // iniciar com o sistema
   const startOnBoot = store.get('startOnBoot', false);
@@ -166,10 +173,27 @@ ipcMain.handle('start-download', async (event, payload) => {
 // Abrir Pasta PLUGINS
 ipcMain.handle('open-plugins-folder', () => {
   if (pluginsDir) {
+    if (!fs.existsSync(pluginsDir)) {
+      fs.mkdirSync(pluginsDir, { recursive: true });
+    }
+    
     shell.openPath(pluginsDir);
     return { ok: true, path: pluginsDir };
   }
   return { ok: false, error: 'Plugins dir not set' };
+});
+
+// Abrir Pasta COOKIES
+ipcMain.handle('open-cookies-folder', () => {
+  if (cookiesDir) {
+    if (!fs.existsSync(cookiesDir)) {
+      fs.mkdirSync(cookiesDir, { recursive: true });
+    }
+    
+    shell.openPath(cookiesDir);
+    return { ok: true, path: cookiesDir };
+  }
+  return { ok: false, error: 'Cookies dir not set' };
 });
 
 ipcMain.handle('get-settings', () => {
