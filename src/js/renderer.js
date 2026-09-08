@@ -9,7 +9,8 @@ tabs.forEach((btn) => {
     sections.forEach((s) => s.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
-    if (tab === 'settings') {
+    
+    if (btn.dataset.tab === 'settings') {
       loadHistory();
     }
   });
@@ -17,36 +18,46 @@ tabs.forEach((btn) => {
 
 window.addEventListener('DOMContentLoaded', async () => {
   const settings = await window.electronAPI.getSettings();
-  document.getElementById('cfg-startup').checked = settings.startOnBoot;
-  document.getElementById('cfg-tray').checked = settings.keepInTray;
-  document.getElementById('cfg-version').textContent = settings.version;
+  
+  const cfgStartup = document.getElementById('cfg-startup');
+  if (cfgStartup) cfgStartup.checked = settings.startOnBoot;
+  
+  const cfgTray = document.getElementById('cfg-tray');
+  if (cfgTray) cfgTray.checked = settings.keepInTray;
+  
+  const cfgVersion = document.getElementById('cfg-version');
+  if (cfgVersion) cfgVersion.textContent = settings.version;
 
-  const home = require('os').homedir ? require('os').homedir() : '';
-  document.getElementById('video-output').value = 'Vídeos padrão do sistema';
-  document.getElementById('audio-output').value = 'Músicas padrão do sistema';
+  const videoOutputEl = document.getElementById('video-output');
+  if (videoOutputEl) videoOutputEl.value = 'Vídeos padrão do sistema';
+  
+  const audioOutputEl = document.getElementById('audio-output');
+  if (audioOutputEl) audioOutputEl.value = 'Músicas padrão do sistema';
 
-  window.addEventListener('DOMContentLoaded', async () => {
-    const settings = await window.electronAPI.getSettings();
-    document.getElementById('cfg-startup').checked = settings.startOnBoot;
-    document.getElementById('cfg-tray').checked = settings.keepInTray;
-    document.getElementById('cfg-version').textContent = settings.version;
-
-    // Verificar plugins
-    const plugins = await window.electronAPI.checkPlugins();
-    const warning = document.getElementById('plugin-warning');
+  // Verificar plugins
+  const plugins = await window.electronAPI.checkPlugins();
+  const warning = document.getElementById('plugin-warning');
+  if (warning) {
     if (!plugins.yt || !plugins.ff || !plugins.spot) {
       warning.innerHTML = `⚠️ Plugins faltando! Recomendado ter yt-dlp, ffmpeg e spotdl. <button id="btn-open-plugins">Abrir pasta</button>`;
       warning.classList.remove('hidden');
     }
+  }
 
-    document.getElementById('btn-open-plugins').addEventListener('click', () => {
+  // Verifica se o botão foi criado no HTML acima antes de adicionar o evento
+  const btnOpenPlugins = document.getElementById('btn-open-plugins');
+  if (btnOpenPlugins) {
+    btnOpenPlugins.addEventListener('click', () => {
       window.electronAPI.openPluginsFolder();
     });
+  }
 
-    document.getElementById('btn-get-plugins').addEventListener('click', () => {
+  const btnGetPlugins = document.getElementById('btn-get-plugins');
+  if (btnGetPlugins) {
+    btnGetPlugins.addEventListener('click', () => {
       window.electronAPI.openExternal('https://github.com/yt-dlp/yt-dlp/releases');
     });
-  });
+  }
 });
 
 // VÍDEO
@@ -58,64 +69,70 @@ const videoOutput = document.getElementById('video-output');
 const videoChoose = document.getElementById('video-choose');
 const videoDownload = document.getElementById('video-download');
 const videoStatus = document.getElementById('video-status');
-const videoFileName = document.getElementById('video-filename').value.trim();
+const videoFileNameInput = document.getElementById('video-filename');
 
-videoUrl.addEventListener('blur', async () => {
-  if (videoUrl.value.trim().length > 0) {
-    const p = await window.electronAPI.detectPlatform(videoUrl.value.trim());
-    if (p && p !== 'desconhecido') {
-      videoPlatform.value = p;
+if (videoUrl) {
+  videoUrl.addEventListener('blur', async () => {
+    if (videoUrl.value.trim().length > 0) {
+      const p = await window.electronAPI.detectPlatform(videoUrl.value.trim());
+      if (p && p !== 'desconhecido') {
+        videoPlatform.value = p;
+      }
     }
-  }
-});
+  });
+}
 
-videoChoose.addEventListener('click', async () => {
-  const folder = await window.electronAPI.chooseFolder();
-  if (folder) {
-    videoOutput.value = folder;
-  }
-});
+if (videoChoose) {
+  videoChoose.addEventListener('click', async () => {
+    const folder = await window.electronAPI.chooseFolder();
+    if (folder) {
+      videoOutput.value = folder;
+    }
+  });
+}
 
-videoDownload.addEventListener('click', async () => {
-  videoStatus.innerHTML = `<p class="statusNeutro"><i class="ri-loader-2-fill spin"></i> Iniciando download...</p>`;
-  const payload = {
-    type: 'video',
-    url: videoUrl.value.trim(),
-    platform: videoPlatform.value,
-    quality: videoQuality.value,
-    codec: videoCodec.value,
-    fileType: document.getElementById('video-filetype').value,
-    fileName: document.getElementById('video-filename').value.trim(),
-    outputDir: videoOutput.value.includes('padrão') ? '' : videoOutput.value
-  };
-
-  const res = await window.electronAPI.startDownload(payload);
-  if (res.ok) {
-    videoStatus.innerHTML = `<p class="statusConcluido"><i class="ri-checkbox-circle-fill"></i> Download concluído.</p>`;
-    await window.electronAPI.addDownloadLog({
-      name: payload.fileName || (res.file ? res.file.split('\\').pop() : 'Vídeo'),
-      path: res.file || '',
-      platform: payload.platform || 'auto',
+if (videoDownload) {
+  videoDownload.addEventListener('click', async () => {
+    videoStatus.innerHTML = `<p class="statusNeutro"><i class="ri-loader-2-fill spin"></i> Iniciando download...</p>`;
+    const payload = {
       type: 'video',
-      quality: payload.quality || 'best',
-      status: 'ok'
-    });
-    loadHistory && loadHistory();
-  } else {
-    videoStatus.innerHTML = `<p class="statusErro"><i class="ri-alert-fill"></i> Erro ao continuar.</p>`;
-    showErrorModal('Erro ao baixar vídeo', res.error, res.error.includes('ffmpeg.exe'));
-    await window.electronAPI.addDownloadLog({
-      name: payload.fileName || 'Vídeo (falhou)',
-      path: '',
-      platform: payload.platform || 'auto',
-      type: 'video',
-      quality: payload.quality || 'best',
-      status: 'erro',
-      error: res.error
-    });
-    loadHistory && loadHistory();
-  }
-});
+      url: videoUrl.value.trim(),
+      platform: videoPlatform.value,
+      quality: videoQuality.value,
+      codec: videoCodec.value,
+      fileType: document.getElementById('video-filetype')?.value || '',
+      fileName: videoFileNameInput?.value.trim() || '',
+      outputDir: videoOutput.value.includes('padrão') ? '' : videoOutput.value
+    };
+
+    const res = await window.electronAPI.startDownload(payload);
+    if (res.ok) {
+      videoStatus.innerHTML = `<p class="statusConcluido"><i class="ri-checkbox-circle-fill"></i> Download concluído.</p>`;
+      await window.electronAPI.addDownloadLog({
+        name: payload.fileName || (res.file ? res.file.split('\\').pop() : 'Vídeo'),
+        path: res.file || '',
+        platform: payload.platform || 'auto',
+        type: 'video',
+        quality: payload.quality || 'best',
+        status: 'ok'
+      });
+      if (typeof loadHistory === 'function') loadHistory();
+    } else {
+      videoStatus.innerHTML = `<p class="statusErro"><i class="ri-alert-fill"></i> Erro ao continuar.</p>`;
+      showErrorModal('Erro ao baixar vídeo', res.error, res.error.includes('ffmpeg.exe'));
+      await window.electronAPI.addDownloadLog({
+        name: payload.fileName || 'Vídeo (falhou)',
+        path: '',
+        platform: payload.platform || 'auto',
+        type: 'video',
+        quality: payload.quality || 'best',
+        status: 'erro',
+        error: res.error
+      });
+      if (typeof loadHistory === 'function') loadHistory();
+    }
+  });
+}
 
 // ÁUDIO
 const audioUrl = document.getElementById('audio-url');
@@ -127,9 +144,11 @@ const audioOutput = document.getElementById('audio-output');
 const audioChoose = document.getElementById('audio-choose');
 const audioDownload = document.getElementById('audio-download');
 const audioStatus = document.getElementById('audio-status');
-const audioFileName = document.getElementById('audio-filename').value.trim();
+const audioFileNameInput = document.getElementById('audio-filename');
 
 function toggleSpotifyEngine() {
+  if (!spotifyEngineContainer || !audioPlatform) return;
+  
   if (audioPlatform.value === 'spotify') {
     spotifyEngineContainer.classList.remove('hidden');
   } else {
@@ -137,103 +156,127 @@ function toggleSpotifyEngine() {
   }
 }
 
-audioPlatform.addEventListener('change', toggleSpotifyEngine);
+if (audioPlatform) {
+  audioPlatform.addEventListener('change', toggleSpotifyEngine);
+}
 
-audioUrl.addEventListener('blur', async () => {
-  if (audioUrl.value.trim().length > 0) {
-    const p = await window.electronAPI.detectPlatform(audioUrl.value.trim());
-    if (p && p !== 'desconhecido') {
-      audioPlatform.value = p;
-      toggleSpotifyEngine();
+if (audioUrl) {
+  audioUrl.addEventListener('blur', async () => {
+    if (audioUrl.value.trim().length > 0) {
+      const p = await window.electronAPI.detectPlatform(audioUrl.value.trim());
+      if (p && p !== 'desconhecido') {
+        audioPlatform.value = p;
+        toggleSpotifyEngine();
+      }
     }
-  }
-});
+  });
+}
 
-audioChoose.addEventListener('click', async () => {
-  const folder = await window.electronAPI.chooseFolder();
-  if (folder) {
-    audioOutput.value = folder;
-  }
-});
+if (audioChoose) {
+  audioChoose.addEventListener('click', async () => {
+    const folder = await window.electronAPI.chooseFolder();
+    if (folder) {
+      audioOutput.value = folder;
+    }
+  });
+}
 
-audioDownload.addEventListener('click', async () => {
-  audioStatus.innerHTML = `<p class="statusNeutro"><i class="ri-loader-2-fill spin"></i> Iniciando download...</p>`;
-  const payload = {
-    type: 'audio',
-    url: audioUrl.value.trim(),
-    platform: audioPlatform.value,
-    spotifyEngine: audioSpotifyEngine.value,
-    quality: audioQuality.value,
-    codec: '',
-    fileType: document.getElementById('audio-filetype').value,
-    fileName: document.getElementById('audio-filename').value.trim(),
-    outputDir: audioOutput.value.includes('padrão') ? '' : audioOutput.value
-  };
-
-  const res = await window.electronAPI.startDownload(payload);
-  if (res.ok) {
-    audioStatus.innerHTML = `<p class="statusConcluido"><i class="ri-checkbox-circle-fill"></i> Download concluído.</p>`;
-    await window.electronAPI.addDownloadLog({
-      name: payload.fileName || (res.file ? res.file.split('\\').pop() : 'Áudio'),
-      path: res.file || '',
-      platform: payload.platform || 'auto',
+if (audioDownload) {
+  audioDownload.addEventListener('click', async () => {
+    audioStatus.innerHTML = `<p class="statusNeutro"><i class="ri-loader-2-fill spin"></i> Iniciando download...</p>`;
+    const payload = {
       type: 'audio',
-      quality: payload.quality || 'best',
-      status: 'ok'
-    });
-    loadHistory && loadHistory();
-  } else {
-    audioStatus.innerHTML = `<p class="statusErro"><i class="ri-alert-fill"></i> Erro ao continuar.</p>`;
-    showErrorModal('Erro ao baixar áudio', res.error, res.error.includes('ffmpeg.exe'));
-    await window.electronAPI.addDownloadLog({
-      name: payload.fileName || 'Áudio (falhou)',
-      path: '',
-      platform: payload.platform || 'auto',
-      type: 'audio',
-      quality: payload.quality || 'best',
-      status: 'erro',
-      error: res.error
-    });
-    loadHistory && loadHistory();
-  }
-});
+      url: audioUrl.value.trim(),
+      platform: audioPlatform.value,
+      spotifyEngine: audioSpotifyEngine?.value || '',
+      quality: audioQuality.value,
+      codec: '',
+      fileType: document.getElementById('audio-filetype')?.value || '',
+      fileName: audioFileNameInput?.value.trim() || '',
+      outputDir: audioOutput.value.includes('padrão') ? '' : audioOutput.value
+    };
 
-window.electronAPI.onDownloadProgress((data) => {
-  const { url, percent, engine } = data;
-  // vídeo
-  if (document.getElementById('video-url').value.trim() === url) {
-    document.getElementById('video-status').innerHTML =
-      `<p class="statusBaixando"><i class="ri-loader-2-fill spin"></i> Baixando... ${percent.toFixed(1)}% (${engine})</p>`;
-  }
-  // áudio
-  if (document.getElementById('audio-url').value.trim() === url) {
-    document.getElementById('audio-status').innerHTML =
-      `<p class="statusBaixando"><i class="ri-loader-2-fill spin"></i> Baixando... ${percent.toFixed(1)}% (${engine})</p>`;
-  }
-});
+    const res = await window.electronAPI.startDownload(payload);
+    if (res.ok) {
+      audioStatus.innerHTML = `<p class="statusConcluido"><i class="ri-checkbox-circle-fill"></i> Download concluído.</p>`;
+      await window.electronAPI.addDownloadLog({
+        name: payload.fileName || (res.file ? res.file.split('\\').pop() : 'Áudio'),
+        path: res.file || '',
+        platform: payload.platform || 'auto',
+        type: 'audio',
+        quality: payload.quality || 'best',
+        status: 'ok'
+      });
+      if (typeof loadHistory === 'function') loadHistory();
+    } else {
+      audioStatus.innerHTML = `<p class="statusErro"><i class="ri-alert-fill"></i> Erro ao continuar.</p>`;
+      showErrorModal('Erro ao baixar áudio', res.error, res.error.includes('ffmpeg.exe'));
+      await window.electronAPI.addDownloadLog({
+        name: payload.fileName || 'Áudio (falhou)',
+        path: '',
+        platform: payload.platform || 'auto',
+        type: 'audio',
+        quality: payload.quality || 'best',
+        status: 'erro',
+        error: res.error
+      });
+      if (typeof loadHistory === 'function') loadHistory();
+    }
+  });
+}
+
+if (window.electronAPI && window.electronAPI.onDownloadProgress) {
+  window.electronAPI.onDownloadProgress((data) => {
+    const { url, percent, engine } = data;
+    // vídeo
+    const vUrl = document.getElementById('video-url');
+    if (vUrl && vUrl.value.trim() === url) {
+      document.getElementById('video-status').innerHTML =
+        `<p class="statusBaixando"><i class="ri-loader-2-fill spin"></i> Baixando... ${percent.toFixed(1)}% (${engine})</p>`;
+    }
+    // áudio
+    const aUrl = document.getElementById('audio-url');
+    if (aUrl && aUrl.value.trim() === url) {
+      document.getElementById('audio-status').innerHTML =
+        `<p class="statusBaixando"><i class="ri-loader-2-fill spin"></i> Baixando... ${percent.toFixed(1)}% (${engine})</p>`;
+    }
+  });
+}
 
 // CONFIGURAÇÕES
-document.getElementById('cfg-startup').addEventListener('change', async (e) => {
-  await window.electronAPI.setSettings({ startOnBoot: e.target.checked });
-});
+const cfgStartupEl = document.getElementById('cfg-startup');
+if (cfgStartupEl) {
+  cfgStartupEl.addEventListener('change', async (e) => {
+    await window.electronAPI.setSettings({ startOnBoot: e.target.checked });
+  });
+}
 
-document.getElementById('cfg-tray').addEventListener('change', async (e) => {
-  await window.electronAPI.setSettings({ keepInTray: e.target.checked });
-});
+const cfgTrayEl = document.getElementById('cfg-tray');
+if (cfgTrayEl) {
+  cfgTrayEl.addEventListener('change', async (e) => {
+    await window.electronAPI.setSettings({ keepInTray: e.target.checked });
+  });
+}
 
-document.getElementById('open-plugins').addEventListener('click', async () => {
-  const res = await window.electronAPI.openPluginsFolder();
-  if (!res.ok) {
-    alert('Não foi possível abrir a pasta de plugins: ' + (res.error || 'desconhecido'));
-  }
-});
+const btnOpenPluginsConfig = document.getElementById('open-plugins');
+if (btnOpenPluginsConfig) {
+  btnOpenPluginsConfig.addEventListener('click', async () => {
+    const res = await window.electronAPI.openPluginsFolder();
+    if (!res.ok) {
+      alert('Não foi possível abrir a pasta de plugins: ' + (res.error || 'desconhecido'));
+    }
+  });
+}
 
-document.getElementById('open-cookies').addEventListener('click', async () => {
-  const res = await window.electronAPI.openCookiesFolder();
-  if (!res.ok) {
-    alert('Não foi possível abrir a pasta de cookies: ' + (res.error || 'desconhecido'));
-  }
-});
+const btnOpenCookies = document.getElementById('open-cookies');
+if (btnOpenCookies) {
+  btnOpenCookies.addEventListener('click', async () => {
+    const res = await window.electronAPI.openCookiesFolder();
+    if (!res.ok) {
+      alert('Não foi possível abrir a pasta de cookies: ' + (res.error || 'desconhecido'));
+    }
+  });
+}
 
 // Serviços externos (PLUGLINS BUILT-IN)
 const btnSpotify = document.getElementById('btn-audio-spotify');
@@ -262,7 +305,6 @@ if (btnTiktokDownloader) {
     window.electronAPI.openWebPopup('https://ssstik.io/pt');
   });
 }
-
 if (btnDonate) {
   btnDonate.addEventListener('click', () => {
     window.electronAPI.openWebPopup('https://livepix.gg/jhordan');
@@ -276,23 +318,35 @@ function showErrorModal(title, message, showPluginsButton = false) {
   const msgEl = document.getElementById('error-message');
   const btnPlugins = document.getElementById('btn-open-plugins-err');
 
-  titleEl.textContent = title;
-  msgEl.textContent = message;
+  if (!modal) return;
 
-  if (showPluginsButton) btnPlugins.classList.remove('hidden');
-  else btnPlugins.classList.add('hidden');
+  if (titleEl) titleEl.textContent = title;
+  if (msgEl) msgEl.textContent = message;
+
+  if (btnPlugins) {
+    if (showPluginsButton) btnPlugins.classList.remove('hidden');
+    else btnPlugins.classList.add('hidden');
+  }
 
   modal.classList.remove('hidden');
 }
 
-document.getElementById('btn-close-error').addEventListener('click', () => {
-  document.getElementById('error-modal').classList.add('hidden');
-});
+const btnCloseError = document.getElementById('btn-close-error');
+if (btnCloseError) {
+  btnCloseError.addEventListener('click', () => {
+    const modal = document.getElementById('error-modal');
+    if (modal) modal.classList.add('hidden');
+  });
+}
 
-document.getElementById('btn-open-plugins-err').addEventListener('click', () => {
-  window.electronAPI.openPluginsFolder();
-  document.getElementById('error-modal').classList.add('hidden');
-});
+const btnOpenPluginsErr = document.getElementById('btn-open-plugins-err');
+if (btnOpenPluginsErr) {
+  btnOpenPluginsErr.addEventListener('click', () => {
+    window.electronAPI.openPluginsFolder();
+    const modal = document.getElementById('error-modal');
+    if (modal) modal.classList.add('hidden');
+  });
+}
 
 // HISTÓRICO
 async function loadHistory() {
@@ -398,6 +452,7 @@ const convFormats = {
 
 function fillConvFormats(type) {
   const sel = document.getElementById('conv-output-format');
+  if (!sel) return;
   sel.innerHTML = '';
   convFormats[type].forEach(ext => {
     const opt = document.createElement('option');
@@ -417,60 +472,77 @@ function updateConvertButtonLabel() {
 }
 
 const convCat = document.getElementById('conv-category');
-fillConvFormats(convCat.value);
-
-convCat.addEventListener('change', () => {
+if (convCat) {
   fillConvFormats(convCat.value);
-});
-document.getElementById('conv-output-format').addEventListener('change', updateConvertButtonLabel);
+  convCat.addEventListener('change', () => {
+    fillConvFormats(convCat.value);
+  });
+}
+
+const convOutputFormatEl = document.getElementById('conv-output-format');
+if (convOutputFormatEl) {
+  convOutputFormatEl.addEventListener('change', updateConvertButtonLabel);
+}
 
 const convStatus = document.getElementById('conv-status');
 const convFileLabel = document.getElementById('conv-selected-file');
 const convOutInput = document.getElementById('conv-output-path');
 const convStartBtn = document.getElementById('conv-start');
 
-document.getElementById('conv-select-file').addEventListener('click', async () => {
-  const file = await window.electronAPI.pickFile();
-  if (!file) return;
-  convSelectedFile = file;
-  convFileLabel.textContent = file;
-  convStartBtn.disabled = false;
-});
-
-document.getElementById('conv-choose-output').addEventListener('click', async () => {
-  const folder = await window.electronAPI.chooseFolder();
-  if (!folder) return;
-  convOutputDir = folder;
-  convOutInput.value = folder;
-});
-
-convStartBtn.addEventListener('click', async () => {
-  if (!convSelectedFile) return;
-
-  const type = convCat.value;
-  const format = document.getElementById('conv-output-format').value;
-
-  convStatus.innerHTML = `<p class="statusNeutro"><i class="ri-loader-2-fill spin"></i> Iniciando conversão...</p>`;
-  convStartBtn.disabled = true;
-
-  const res = await window.electronAPI.convertFile({
-    type,
-    input: convSelectedFile,
-    outputDir: convOutputDir,
-    format
+const convSelectFileBtn = document.getElementById('conv-select-file');
+if (convSelectFileBtn) {
+  convSelectFileBtn.addEventListener('click', async () => {
+    const file = await window.electronAPI.pickFile();
+    if (!file) return;
+    convSelectedFile = file;
+    if (convFileLabel) convFileLabel.textContent = file;
+    if (convStartBtn) convStartBtn.disabled = false;
   });
+}
 
-  if (res.ok) {
-    convStatus.innerHTML = `<p class="statusConcluido"><i class="ri-checkbox-circle-fill"></i> Conversão concluída! (<span class="hint">${res.output})</p>`;
-  } else {
-    convStatus.innerHTML = `<p class="statusErro"><i class="ri-error-warning-fill"></i> Erro ao converter: ${res.error}</p>`;
-  }
+const convChooseOutputBtn = document.getElementById('conv-choose-output');
+if (convChooseOutputBtn) {
+  convChooseOutputBtn.addEventListener('click', async () => {
+    const folder = await window.electronAPI.chooseFolder();
+    if (!folder) return;
+    convOutputDir = folder;
+    if (convOutInput) convOutInput.value = folder;
+  });
+}
 
-  convStartBtn.disabled = false;
-});
+if (convStartBtn) {
+  convStartBtn.addEventListener('click', async () => {
+    if (!convSelectedFile) return;
 
-window.electronAPI.onConvertProgress((_e, { input, percent }) => {
-  if (!convSelectedFile || input !== convSelectedFile) return;
-  const p = Math.round(percent);
-  convStatus.innerHTML = `<p class="statusBaixando"><i class="ri-loop-right-fill spin"></i> Convertendo arquivo... (${p}%)</p>`;
-});
+    const type = convCat ? convCat.value : '';
+    const format = convOutputFormatEl ? convOutputFormatEl.value : '';
+
+    if (convStatus) convStatus.innerHTML = `<p class="statusNeutro"><i class="ri-loader-2-fill spin"></i> Iniciando conversão...</p>`;
+    convStartBtn.disabled = true;
+
+    const res = await window.electronAPI.convertFile({
+      type,
+      input: convSelectedFile,
+      outputDir: convOutputDir,
+      format
+    });
+
+    if (res.ok) {
+      if (convStatus) convStatus.innerHTML = `<p class="statusConcluido"><i class="ri-checkbox-circle-fill"></i> Conversão concluída! (<span class="hint">${res.output}</span>)</p>`;
+    } else {
+      if (convStatus) convStatus.innerHTML = `<p class="statusErro"><i class="ri-error-warning-fill"></i> Erro ao converter: ${res.error}</p>`;
+    }
+
+    convStartBtn.disabled = false;
+  });
+}
+
+if (window.electronAPI && window.electronAPI.onConvertProgress) {
+  window.electronAPI.onConvertProgress((_e, { input, percent }) => {
+    if (!convSelectedFile || input !== convSelectedFile) return;
+    const p = Math.round(percent);
+    if (convStatus) {
+      convStatus.innerHTML = `<p class="statusBaixando"><i class="ri-loop-right-fill spin"></i> Convertendo arquivo... (${p}%)</p>`;
+    }
+  });
+}
